@@ -40,7 +40,7 @@ export const Router = {
     const route = routes[basePath] || routes['#/dashboard'];
 
     // Check Auth - Tạm thời bỏ qua nếu mock auth. Sẽ cắm logic check Auth Firebase sau.
-    import('../services/store.js').then(({ Store }) => {
+    import('../../services/store.js').then(({ Store }) => {
        const user = Store.getCurrentUser();
        if (route.authRequired && !user) {
            window.location.hash = '#/login';

@@ -1,6 +1,6 @@
 import { DBDocs } from '../services/firestore.js';
 import { OpenAIService } from '../services/openai.js';
-import { UI } from '../js/ui.js';
+import { UI } from '../assets/js/ui.js';
 
 export const title = 'Tạo Kênh Mới';
 

@@ -1,5 +1,5 @@
 import { DBDocs } from '../services/firestore.js';
-import { UI } from '../js/ui.js';
+import { UI } from '../assets/js/ui.js';
 
 export const title = 'Bảng điều khiển';
 

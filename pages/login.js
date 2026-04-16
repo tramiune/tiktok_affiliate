@@ -1,6 +1,6 @@
 import { FirebaseService } from '../services/firebase.js';
 import { Store } from '../services/store.js';
-import { UI } from '../js/ui.js';
+import { UI } from '../assets/js/ui.js';
 
 export const title = 'Đăng nhập';
 

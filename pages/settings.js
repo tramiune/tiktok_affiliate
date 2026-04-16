@@ -1,5 +1,5 @@
 import { Store } from '../services/store.js';
-import { UI } from '../js/ui.js';
+import { UI } from '../assets/js/ui.js';
 
 export const title = 'Cài đặt AI & API';
 

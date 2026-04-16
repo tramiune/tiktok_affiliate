@@ -1,5 +1,5 @@
 import { Router } from './router.js';
-import { Store } from '../services/store.js';
+import { Store } from '../../services/store.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     
