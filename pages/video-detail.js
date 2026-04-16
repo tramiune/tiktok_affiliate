@@ -250,14 +250,25 @@ function setupEvents() {
     // --- Batch Actions ---
     const btnCopyAll = document.getElementById('btn-copy-all');
     if(btnCopyAll) {
-        btnCopyAll.onclick = () => {
+        btnCopyAll.onclick = async () => {
             const list = Array.isArray(scenes) ? scenes : (scenes.scenes || []);
             if(list.length === 0) {
                 UI.showError("Chưa có kịch bản để sao chép!");
                 return;
             }
             const text = list.map((s, idx) => `SCENE ${s.scene_number || (idx+1)} PROMPT:\n${s.veo3_prompt}`).join('\n\n---\n\n');
-            UI.copyToClipboard(text, "Đã sao chép tất cả kịch bản!");
+            await UI.copyToClipboard(text, "Đã sao chép tất cả kịch bản!");
+            
+            // Tự động tick tất cả
+            if (scenes && scenes.scenes) {
+                scenes.scenes.forEach(s => s.isGenerated = true);
+                try {
+                    await DBDocs.saveVideoScenes(currentChannelId, currentVideoId, scenes);
+                    renderScenes();
+                } catch(err) {
+                    console.error("Lỗi lưu trạng thái copy-all", err);
+                }
+            }
         };
     }
 
@@ -296,9 +307,16 @@ function setupEvents() {
                 // 1. Copy to clipboard
                 await UI.copyToClipboard(scene.veo3_prompt, `Đã copy Prompt cảnh ${parseInt(idx)+1}`);
                 
-                // 2. Open tool URL
-                const toolUrl = Store.getGeneratorUrl();
-                window.open(toolUrl, '_blank');
+                // 2. Tự động tick
+                if (scenes && scenes.scenes) {
+                    scenes.scenes[idx].isGenerated = true;
+                    try {
+                        await DBDocs.saveVideoScenes(currentChannelId, currentVideoId, scenes);
+                        renderScenes(); // Cập nhật UI ngay lập tức
+                    } catch (err) {
+                        console.error("Lỗi lưu trạng thái tự động tick", err);
+                    }
+                }
             }
             return;
         }

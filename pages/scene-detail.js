@@ -136,10 +136,24 @@ function setupEvents() {
         window.location.hash = `#/video-detail/${currentChannelId}/${currentVideoId}`;
     };
 
-    document.getElementById('btn-copy-prompt').onclick = () => {
+    document.getElementById('btn-copy-prompt').onclick = function() {
+        const btn = this;
+        const originalHTML = btn.innerHTML;
         const prompt = document.getElementById('sc-veo-prompt').value;
+        
         navigator.clipboard.writeText(prompt).then(() => {
             UI.showToast("Đã sao chép câu lệnh!");
+            
+            // Visual feedback: change icon to tick
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Đã chép';
+            btn.classList.add('btn-success');
+            btn.classList.remove('btn-primary');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-primary');
+            }, 2000);
         });
     };
 
