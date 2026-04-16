@@ -1,6 +1,19 @@
 import { Router } from './router.js';
 import { Store } from '../../services/store.js';
 import { FirebaseService } from '../../services/firebase.js';
+import { UI } from './ui.js';
+
+window.onerror = function(msg, url, lineNo, columnNo, error) {
+    const errStr = `Lỗi hệ thống: ${msg} tại dòng ${lineNo}`;
+    console.error(errStr, error);
+    try { UI.showError(errStr); } catch(e) { alert(errStr); }
+    return false;
+};
+window.addEventListener('unhandledrejection', function(event) {
+    const errStr = `Lỗi ngầm (Promise): ${event.reason}`;
+    console.error(errStr);
+    try { UI.showError(errStr); } catch(e) { alert(errStr); }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     FirebaseService.init();

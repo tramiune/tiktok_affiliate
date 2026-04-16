@@ -1,0 +1,1 @@
+const puppeteer = require('puppeteer'); (async () = const browser = await puppeteer.launch(); const page = await browser.newPage(); page.on('console', msg = LOG:', msg.text())); page.on('pageerror', err = ERROR:', err.message)); await page.goto('http://127.0.0.1:12345/#/dashboard'); await page.waitForTimeout(2000); await browser.close(); })();  
