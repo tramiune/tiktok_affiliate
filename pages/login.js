@@ -31,7 +31,8 @@ export function init() {
             window.location.hash = '#/dashboard';
             window.location.reload();
         } catch (error) {
-            UI.showError("Đăng nhập thất bại. Vui lòng thử lại.");
+            console.error(error);
+            UI.showError("Lỗi: " + error.message);
             btnLogin.innerHTML = 'Đăng nhập bằng Google';
             btnLogin.disabled = false;
         }

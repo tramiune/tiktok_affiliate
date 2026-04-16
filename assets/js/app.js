@@ -1,8 +1,10 @@
 import { Router } from './router.js';
 import { Store } from '../../services/store.js';
+import { FirebaseService } from '../../services/firebase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    
+    FirebaseService.init();
+
     // Mock user for UI dev if desired, uncomment to test without Firebase:
     // Store.setCurrentUser({ uid: 'mock123', displayName: 'Dev User', photoURL: 'https://ui-avatars.com/api/?name=Dev' });
 
