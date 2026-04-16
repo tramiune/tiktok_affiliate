@@ -126,18 +126,20 @@ YÊU CẦU SỐ 1 - MẠCH TRUYỆN:
 BẮT BUỘC phân rã kịch bản này ra thành 8 ĐẾN 12 CẢNH QUAY (Scenes) liên tục, kịch tính.
 
 YÊU CẦU SỐ 2 - VIDEO PROMPT (VEO 3.1):
-Thuộc tính "veo3_prompt" phải mô tả cực kỳ chi tiết cảnh quay bằng TIẾNG ANH (từ 80 - 150 từ).
+Thuộc tính "veo3_prompt" phải mô tả cực kỳ chi tiết cảnh quay bằng TIẾNG ANH (từ 80 - 150 từ). 
 - Nếu có nhân vật, phải chèn NGUYÊN VĂN "Ngoại hình" (Appearance DNA) của họ vào.
 - Nếu không có nhân vật, phải mô tả bối cảnh, ánh sáng, góc máy và chuyển động một cách sống động.
 - CUỐI PROMPT: Bắt đầu bằng chữ "Dialogue:" và chèn phần lời thoại (voice_over) của cảnh đó nếu có.
 - Luôn đảm bảo field này có nội dung chất lượng cao.
 
 YÊU CẦU SỐ 3 - NÚT THẮT DỞ DANG (CLIFFHANGER):
-Cảnh cuối cùng (Scene 8 -12) PHẢI thực hiện đúng phần "cliffhanger" đã định hướng. Nó phải kết thúc ở đoạn cao trào nhất, hoặc một câu hỏi bỏ ngỏ, không được kết thúc trọn vẹn.
+Cảnh cuối cùng (Scene 8 -12) PHẢI thực hiện đúng phần "cliffhanger" đã định hướng. Nó phải kết thúc ở đoạn cao trào nhất, hoặc một câu hỏi bỏ ngỏ, không được kết thúc trọn vẹn. 
 
 YÊU CẦU SỐ 4 - AN TOÀN BẢN QUYỀN:
 Tuyệt đối không sử dụng tên thật, bài hát có bản quyền hay thương hiệu lớn trong kịch bản.
 
+YÊU CẦU ĐỊNH DẠNG:
+Trả về duy nhất một đối tượng JSON theo cấu trúc sau:
 {
   "scenes": [{ 
     "scene_number", 
@@ -154,7 +156,7 @@ Tuyệt đối không sử dụng tên thật, bài hát có bản quyền hay t
   "copyright_advice": "...",
   "direction_for_editor": "..."
 }
-BẮT BUỘC: Không bao giờ bỏ trống "veo3_prompt". Bắt đầu prompt bằng mô tả nhân vật (nếu có) sau đó đến hành động và bối cảnh.
+BẮT BUỘC: Không bao giờ bỏ trống "veo3_prompt". Bắt đầu bằng nội dung JSON hợp lệ.
 `;
 
         let bibleStr = '';
@@ -255,7 +257,7 @@ Dàn nhân vật cần thiết cho phong cách này là gì? Hãy phóng tác ch
         const systemPrompt = `Bạn là chuyên gia viết Prompt cho AI Video (VEO 3.1). 
 Dựa vào mô tả cảnh quay, hãy viết 1 câu Prompt TIẾNG ANH (80-150 từ) cực kỳ chi tiết.
 BẮT BUỘC CUỐI PROMPT: Phải có phần lời thoại định dạng: "Dialogue: [nội dung lời thoại]".
-Chỉ trả về JSON: {"prompt": "nội dung prompt..."}`;
+Trả về kết quả dưới định dạng JSON: {"prompt": "nội dung prompt..."}`;
         
         const userMessage = `Video: ${videoTitle}\nCảnh quay: ${sceneData.action}\nBối cảnh: ${sceneData.setting}\nNhân vật: ${sceneData.characters}\nCảm xúc: ${sceneData.emotion}\nLời thoại: ${sceneData.voice_over || ''}`;
         
