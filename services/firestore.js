@@ -93,5 +93,49 @@ export const DBDocs = {
         return null;
     }
 
-    // (Vì code giới hạn, các module dưới sẽ mock LocalStorage để test chạy được, thay firestore logic trong prod).
+    // -- LƯU CHARACTER BIBLE --
+    async saveCharacterBible(channelId, characters) {
+        if(FirebaseService.isMockUser()) {
+            const list = getStorage('character_bibles').filter(cb => cb.channelId !== channelId);
+            list.push({ channelId, characters });
+            setStorage('character_bibles', list);
+            return true;
+        }
+        await setDoc(doc(FirebaseService.getDb(), "character_bibles", channelId), { channelId, characters });
+        return true;
+    },
+
+    // -- LẤY CHARACTER BIBLE --
+    async getCharacterBible(channelId) {
+        if(FirebaseService.isMockUser()) {
+            const item = getStorage('character_bibles').find(cb => cb.channelId === channelId);
+            return item ? item.characters : [];
+        }
+        const snap = await getDoc(doc(FirebaseService.getDb(), "character_bibles", channelId));
+        return snap.exists() ? snap.data().characters : [];
+    },
+
+    // -- LƯU VIDEO SCENES --
+    async saveVideoScenes(channelId, videoId, scenes) {
+        const docId = `${channelId}_${videoId}`;
+        if(FirebaseService.isMockUser()) {
+            const list = getStorage('video_scenes').filter(vs => vs.id !== docId);
+            list.push({ id: docId, channelId, videoId, scenes });
+            setStorage('video_scenes', list);
+            return true;
+        }
+        await setDoc(doc(FirebaseService.getDb(), "video_scenes", docId), { channelId, videoId, scenes });
+        return true;
+    },
+
+    // -- LẤY VIDEO SCENES --
+    async getVideoScenes(channelId, videoId) {
+        const docId = `${channelId}_${videoId}`;
+        if(FirebaseService.isMockUser()) {
+            const item = getStorage('video_scenes').find(vs => vs.id === docId);
+            return item ? item.scenes : null;
+        }
+        const snap = await getDoc(doc(FirebaseService.getDb(), "video_scenes", docId));
+        return snap.exists() ? snap.data().scenes : null;
+    }
 };

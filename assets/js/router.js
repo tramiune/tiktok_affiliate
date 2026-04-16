@@ -22,14 +22,30 @@ export const Router = {
   async navigate() {
     let hash = window.location.hash || '#/dashboard';
     
-    // Xử lý các hash có ID (vd: #/channel/123)
+    // Xử lý các hash có ID (vd: #/video-detail/channelId/videoId)
     let basePath = hash;
     let params = {};
     
-    if (hash.startsWith('#/channel/') && hash !== '#/channel/create') {
-        const id = hash.split('/')[2];
-        params.id = id;
-        basePath = '#/channel'; 
+    const parts = hash.split('/');
+    if (parts.length > 2) {
+        basePath = parts[0] + '/' + parts[1]; // ví dụ #/channel, #/video-detail, ...
+        
+        if (basePath === '#/channel' || basePath === '#/character-bible') {
+            params.channelId = parts[2];
+        } else if (basePath === '#/video-detail') {
+            params.channelId = parts[2];
+            params.videoId = parts[3];
+        } else if (basePath === '#/scene-detail') {
+            params.channelId = parts[2];
+            params.videoId = parts[3];
+            params.sceneId = parts[4];
+        }
+    }
+
+    // Ngoại lệ cho trang create
+    if (hash === '#/channel/create') {
+        basePath = '#/channel/create';
+        params = {};
     }
 
     // Default route

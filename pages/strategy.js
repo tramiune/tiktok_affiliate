@@ -11,7 +11,8 @@ export const template = `
             <h2 id="st-channel-name">Tên kênh...</h2>
             <p class="text-sm text-gray" id="st-concept-name">Concept...</p>
         </div>
-        <div>
+        <div class="flex gap-2">
+            <div id="st-series-actions"></div>
             <a href="#/dashboard" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Về Dashboard</a>
         </div>
     </div>
@@ -57,7 +58,7 @@ let currentChannel = null;
 let currentStrategy = null;
 
 export async function init(params) {
-    const id = params.id;
+    const id = params.channelId;
     if(!id) {
         window.location.hash = '#/dashboard';
         return;
@@ -110,6 +111,14 @@ function renderStrategy() {
     document.getElementById('view-container').innerHTML = template;
     
     document.getElementById('st-channel-name').textContent = currentChannel.name;
+    
+    // Series Action
+    if(currentChannel.type === 'series') {
+        document.getElementById('st-series-actions').innerHTML = `
+            <a href="#/character-bible/${currentChannel.id}" class="btn btn-secondary"><i class="fa-solid fa-users"></i> Character Bible</a>
+        `;
+    }
+
     document.getElementById('st-concept-name').textContent = "Concept: " + (currentStrategy.conceptName || 'Mặc định');
     
     document.getElementById('st-direction').textContent = currentStrategy.contentDirection;
@@ -128,7 +137,7 @@ function renderStrategy() {
             <p class="text-sm text-primary mb-2"><em><i class="fa-solid fa-quote-left"></i> Hook: ${v.hook}</em></p>
             <p class="text-xs text-gray"><i class="fa-solid fa-bullhorn"></i> CTA: ${v.cta}</p>
             <div class="mt-3">
-                <button class="btn btn-secondary btn-sm" onclick="alert('Tính năng generate kịch bản chi tiết & Cảnh quay sẽ nằm ở trang sau.')"><i class="fa-solid fa-wand-magic-sparkles"></i> Xem chi tiết & Viết Cảnh</button>
+                <a href="#/video-detail/${currentChannel.id}/${v.id}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-wand-magic-sparkles"></i> Xem chi tiết & Viết Cảnh</a>
             </div>
         </div>
     `).join('');
