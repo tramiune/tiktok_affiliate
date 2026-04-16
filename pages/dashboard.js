@@ -40,8 +40,12 @@ export async function init() {
 
         listContainer.innerHTML = channels.map(c => `
             <div class="card channel-card">
-                <div class="card-header" style="border-bottom:none; padding-bottom: 0;">
-                    <h3 class="text-primary truncate">${c.name}</h3>
+                <div class="card-header flex justify-between items-start" style="border-bottom:none; padding-bottom: 0;">
+                    <h3 class="text-primary truncate" style="max-width: 65%;">${c.name}</h3>
+                    <div class="flex gap-2">
+                        <button class="btn btn-sm text-gray edit-channel" data-id="${c.id}" title="Sửa kênh"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-sm text-gray text-danger delete-channel" data-id="${c.id}" title="Xóa kênh"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <p class="text-sm text-gray mb-2"><strong>Chủ đề:</strong> ${c.topic}</p>
@@ -61,6 +65,75 @@ export async function init() {
                 </div>
             </div>
         `).join('');
+
+        // Setup Edit/Delete events
+        document.querySelectorAll('.delete-channel').forEach(btn => {
+            btn.onclick = () => {
+                const cid = btn.getAttribute('data-id');
+                const channel = channels.find(x => x.id === cid);
+                UI.showModal({
+                    title: "Xóa Dự Án",
+                    bodyHTML: `<p>Bạn có chắc chắn muốn xóa kênh <strong>${channel.name}</strong> không? Hành động này không thể hoàn tác.</p>`,
+                    onConfirm: async (close) => {
+                        try {
+                            UI.showFullLoader();
+                            await DBDocs.deleteChannel(cid);
+                            close();
+                            init(); // Reload list
+                            UI.showToast("Đã xóa kênh thành công.");
+                        } catch(e) {
+                            UI.showError(e.message);
+                        }
+                    }
+                });
+            };
+        });
+
+        document.querySelectorAll('.edit-channel').forEach(btn => {
+            btn.onclick = () => {
+                const cid = btn.getAttribute('data-id');
+                const channel = channels.find(x => x.id === cid);
+                UI.showModal({
+                    title: "Sửa Kênh",
+                    bodyHTML: `
+                        <div class="form-group mb-2">
+                            <label>Tên Kênh</label>
+                            <input type="text" id="edit-name" class="form-control" value="${channel.name}">
+                        </div>
+                        <div class="form-group mb-2">
+                            <label>Chủ đề</label>
+                            <input type="text" id="edit-topic" class="form-control" value="${channel.topic}">
+                        </div>
+                        <div class="form-group mb-2">
+                            <label>Mục tiêu</label>
+                            <input type="text" id="edit-goal" class="form-control" value="${channel.goal || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Mô tả Format</label>
+                            <textarea id="edit-desc" class="form-control" rows="3">${channel.desc || ''}</textarea>
+                        </div>
+                    `,
+                    onConfirm: async (close) => {
+                        try {
+                            const name = document.getElementById('edit-name').value.trim();
+                            const topic = document.getElementById('edit-topic').value.trim();
+                            const goal = document.getElementById('edit-goal').value.trim();
+                            const desc = document.getElementById('edit-desc').value.trim();
+                            
+                            if(!name) return UI.showError("Tên kênh không được để trống");
+                            
+                            UI.showFullLoader();
+                            await DBDocs.updateChannel(cid, { name, topic, goal, desc });
+                            close();
+                            init();
+                            UI.showToast("Cập nhật kênh thành công.");
+                        } catch(e) {
+                            UI.showError(e.message);
+                        }
+                    }
+                });
+            };
+        });
 
     } catch(e) {
         console.error(e);

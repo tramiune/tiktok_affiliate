@@ -62,6 +62,32 @@ export const DBDocs = {
         return null;
     },
 
+    // -- CẬP NHẬT KÊNH --
+    updateChannel: async function(id, data) {
+        if(FirebaseService.isMockUser()) {
+            const list = getStorage('channels');
+            const idx = list.findIndex(c => c.id === id);
+            if(idx > -1) {
+                list[idx] = { ...list[idx], ...data };
+                setStorage('channels', list);
+            }
+            return true;
+        }
+        await updateDoc(doc(FirebaseService.getDb(), "channels", id), data);
+        return true;
+    },
+
+    // -- XOÁ KÊNH --
+    deleteChannel: async function(id) {
+        if(FirebaseService.isMockUser()) {
+            let list = getStorage('channels').filter(c => c.id !== id);
+            setStorage('channels', list);
+            return true;
+        }
+        await deleteDoc(doc(FirebaseService.getDb(), "channels", id));
+        return true;
+    },
+
     // -- LƯU CHIẾN LƯỢC --
     saveStrategy: async function(channelId, strategyData) {
         if(FirebaseService.isMockUser()) {
