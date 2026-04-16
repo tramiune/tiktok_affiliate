@@ -162,13 +162,21 @@ export function init() {
                 title: "Bước 1: Lấy Chiến lược & Dàn nhân vật",
                 promptText: combined,
                 onConfirm: async (parsedFoundation, closeFirst) => {
+                    if(!parsedFoundation.conceptName || !parsedFoundation.characters) {
+                        UI.showError("JSON thiếu 'conceptName' hoặc 'characters'. Vui lòng kiểm tra lại kết quả từ ChatGPT.");
+                        return;
+                    }
+                    
                     const strategy = { ...parsedFoundation };
                     delete strategy.characters;
                     const characters = parsedFoundation.characters || [];
                     const targetCount = parseInt(data.videoCount) || 5;
                     
                     closeFirst();
-                    continueManualVideos(strategy, characters, [], 1, targetCount);
+                    // Delay để tránh xung đột modal layer
+                    setTimeout(() => {
+                        continueManualVideos(strategy, characters, [], 1, targetCount);
+                    }, 400);
                 }
             });
         };
@@ -178,28 +186,36 @@ export function init() {
             const p = OpenAIService.buildVideosBatchPrompt(data, strategy, characters, allVideos, start, count);
             const combined = p.systemPrompt + "\n\n" + p.userMessage;
 
+            const currentStep = Math.ceil(start / 10);
+            const totalSteps = Math.ceil(total / 10);
+
             UI.showManualAIModal({
-                title: `Bước 2: Lấy nội dung tập ${start} - ${start + count - 1}`,
+                title: `Bước 2.${currentStep}: Lấy nội dung tập ${start} - ${start + count - 1} (Tổng: ${total})`,
                 promptText: combined,
                 onConfirm: async (batchResult, close) => {
-                    if(batchResult && batchResult.videos) {
-                        allVideos = allVideos.concat(batchResult.videos);
+                    if(!batchResult || !batchResult.videos || !Array.isArray(batchResult.videos)) {
+                        UI.showError("JSON thiếu danh sách 'videos' hoặc sai định dạng. Hãy kiểm tra lại.");
+                        return;
                     }
-                    
+
+                    allVideos = allVideos.concat(batchResult.videos);
                     close();
+                    
                     if(allVideos.length < total) {
-                        continueManualVideos(strategy, characters, allVideos, allVideos.length + 1, total);
+                        setTimeout(() => {
+                            continueManualVideos(strategy, characters, allVideos, allVideos.length + 1, total);
+                        }, 400);
                     } else {
                         // Hoàn tất
                         try {
-                            UI.injectLoader('form-card', 'Đang lưu dữ liệu...');
+                            UI.injectLoader('form-card', 'Đang thiết lập kênh và lưu 40 tập phim...');
                             strategy.videos = allVideos;
                             const id = await DBDocs.createChannel(data);
                             await DBDocs.saveStrategy(id, strategy);
                             if(characters.length > 0) {
                                 await DBDocs.saveCharacterBible(id, characters);
                             }
-                            UI.showSuccess("Đã nhập thành công chiến lược và nhân vật!");
+                            UI.showSuccess(`Đã nhập thành công ${allVideos.length} tập phim!`);
                             window.location.hash = '#/channel/' + id;
                         } catch (e) {
                             UI.showError("Lỗi lưu trữ: " + e.message);

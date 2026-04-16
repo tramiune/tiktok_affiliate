@@ -89,6 +89,10 @@ export const UI = {
 
     if (!overlay || !modal) return;
 
+    // Đảm bảo ẩn modal cũ nếu đang hiện (phòng trường hợp gọi liên tiếp)
+    overlay.classList.add('hidden');
+    modal.classList.remove('show');
+
     titleEl.textContent = title;
     
     // Encode HTML để tránh lỗi vỡ giao diện nếu promptText có tag
