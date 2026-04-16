@@ -44,7 +44,8 @@ export const OpenAIService = {
     
     buildStrategyPrompt(channelData) {
         const systemPrompt = `
-Bạn là một chuyên gia sáng tạo nội dung TikTok hàng đầu. Hãy phân tích thông tin kênh và tạo ra một chiến lược nội dung hoàn chỉnh kèm danh sách video.
+Bạn là một chuyên gia sáng tạo nội dung TikTok hàng đầu. Hãy phân tích thông tin kênh và tạo ra một chiến lược nội dung hoàn chỉnh kèm dàn nhân vật cốt lõi (chỉ dành cho Series).
+
 YÊU CẦU:
 - Trả về CHUẨN JSON duy nhất.
 - Ngôn ngữ: 100% Tiếng Việt thân thiện, rõ ràng.
@@ -54,8 +55,7 @@ YÊU CẦU:
   "pillars": [danh sách 3 mảng nội dung chính],
   "toneOfVoice": (giọng điệu),
   "visualStyle": (phong cách hình ảnh),
-  "videos": [danh sách các video. Mỗi video gồm: id (string ngẫu nhiên), order (số thứ tự), title (tiêu đề), goal, summary, hook (câu mở đầu), cta]
-Lưu ý: Nếu là Series thì các video phải có tính liên kết chặt chẽ.
+  "characters": [Danh sách 3-5 nhân vật chính (nếu là Series). Mỗi nhân vật gồm: name, role, age, look (Ngoại hình tả bằng TIẾNG ANH chi tiết cho AI Video), personality, note]
 `;
         const userMessage = `
 Phân tích và lên chiến lược cho kênh TikTok sau:
@@ -65,7 +65,41 @@ Phân tích và lên chiến lược cho kênh TikTok sau:
 - Mô tả: ${channelData.desc}
 - Mục tiêu: ${channelData.goal}
 - Đối tượng: ${channelData.audience}
-- Số video muốn làm đợt này: ${channelData.videoCount}
+
+Hãy tập trung xây dựng Concept và dàn nhân vật thật đặc sắc và có tính nhất quán cao.
+`;
+        return { systemPrompt, userMessage };
+    },
+
+    buildVideosBatchPrompt(channelData, strategy, characters, previousVideos = [], startOrder = 1, count = 10) {
+        const systemPrompt = `
+Bạn là biên kịch TikTok chuyên nghiệp. Dựa trên Chiến lược và dàn Nhân vật đã có, hãy viết tiếp kịch bản cho các tập tiếp theo.
+
+YÊU CẦU:
+- Trả về CHUẨN JSON: {"videos": [{"id", "order", "title", "goal", "summary", "hook", "cta"}]}
+- Phải bám sát tính cách và ngoại hình nhân vật đã định nghĩa.
+- Nếu là Series, các tập phải có mạch liên kết logic.
+- Không lặp lại nội dung của các tập trước đó.
+`;
+        
+        let charStr = "";
+        if(characters && characters.length > 0) {
+            charStr = "\nDÀN NHÂN VẬT CHỐT:\n" + characters.map(c => `- ${c.name} (${c.role}): ${c.personality}`).join('\n');
+        }
+
+        let prevStr = "";
+        if(previousVideos && previousVideos.length > 0) {
+            prevStr = "\nCÁC TẬP ĐÃ CÓ (ĐỪNG VIẾT TRÙNG):\n" + previousVideos.slice(-5).map(v => `- Tập ${v.order}: ${v.title}`).join('\n');
+        }
+
+        const userMessage = `
+HÃY VIẾT TIẾP ${count} TẬP PHIM (Bắt đầu từ số thứ tự ${startOrder}).
+- Concept: ${strategy.conceptName || ''}
+- Định hướng: ${strategy.contentDirection || ''}
+${charStr}
+${prevStr}
+
+Lưu ý: Viết tiêu đề và tóm tắt lôi cuốn, đúng phong cách TikTok.
 `;
         return { systemPrompt, userMessage };
     },
@@ -135,7 +169,7 @@ Hãy tạo cho tôi 3-5 nhân vật cốt lõi.
     // --- PROMPTS CHÍNH ---
 
     /**
-     * 1. Tạo chiến lược tổng thể và danh sách video/tập
+     * 1. Tạo chiến lược tổng thể và dàn nhân vật (Foundation)
      */
     async generateStrategy(channelData) {
         const p = this.buildStrategyPrompt(channelData);
@@ -143,7 +177,15 @@ Hãy tạo cho tôi 3-5 nhân vật cốt lõi.
     },
 
     /**
-     * 2. Tạo nội dung chi tiết theo từng cảnh quay (Scenes)
+     * 2. Tạo một đợt video mới dựa trên context cũ
+     */
+    async generateVideosBatch(channelData, strategy, characters, previousVideos, startOrder, count) {
+        const p = this.buildVideosBatchPrompt(channelData, strategy, characters, previousVideos, startOrder, count);
+        return this.callAPI(p.systemPrompt, p.userMessage);
+    },
+
+    /**
+     * 3. Tạo nội dung chi tiết theo từng cảnh quay (Scenes)
      */
     async generateVideoScenes(videoData, channelContext, characterBible = null) {
         const p = this.buildVideoScenesPrompt(videoData, channelContext, characterBible);
@@ -151,7 +193,7 @@ Hãy tạo cho tôi 3-5 nhân vật cốt lõi.
     },
 
     /**
-     * 3. Tự động sinh Hồ sơ nhân vật
+     * 4. Tự động sinh Hồ sơ nhân vật (dùng riêng biệt nếu cần)
      */
     async generateCharacters(channelContext, strategyData) {
         const p = this.buildCharactersPrompt(channelContext, strategyData);

@@ -46,7 +46,7 @@ export const template = `
                 </div>
                 <div class="form-group">
                     <label class="form-label">Số lượng video cần AI gợi ý đợt này</label>
-                    <input type="number" id="f-count" class="form-control" value="5" min="1" max="20">
+                    <input type="number" id="f-count" class="form-control" value="5" min="1" max="50">
                 </div>
             </div>
             
@@ -106,19 +106,41 @@ export function init() {
         if(!validate(data)) return;
 
         try {
-            UI.injectLoader('form-card', 'AI đang tổng hợp và viết định hướng...');
+            UI.injectLoader('form-card', 'Bước 1: Đang thiết lập Chiến lược & Dàn nhân vật...');
             
-            // 1. Tạo AI Strategy
-            const aiStrategy = await OpenAIService.generateStrategy(data);
+            // 1. Tạo Foundation (Strategy + Chars)
+            const foundation = await OpenAIService.generateStrategy(data);
+            const strategy = { ...foundation };
+            delete strategy.characters;
+            const characters = foundation.characters || [];
+
+            // 2. Loop sinh video theo đợt
+            let allVideos = [];
+            const targetCount = parseInt(data.videoCount) || 5;
+            const batchSize = 10;
             
-            // 2. Lưu Channel trước
+            for(let start = 1; start <= targetCount; start += batchSize) {
+                const count = Math.min(batchSize, targetCount - start + 1);
+                UI.setHTML(`loader-form-card`, `<i class="fa-solid fa-wand-magic-sparkles fa-spin fa-2x text-primary"></i><span>Bước 2: Đang viết tập ${start} - ${start + count - 1}...</span>`);
+                
+                const batchResult = await OpenAIService.generateVideosBatch(data, strategy, characters, allVideos, start, count);
+                if(batchResult && batchResult.videos) {
+                    allVideos = allVideos.concat(batchResult.videos);
+                }
+            }
+
+            strategy.videos = allVideos;
+            
+            // 3. Lưu dữ liệu
+            UI.setHTML(`loader-form-card`, `<i class="fa-solid fa-spinner fa-spin fa-2x text-primary"></i><span>Đang hoàn tất lưu trữ...</span>`);
             const id = await DBDocs.createChannel(data);
+            await DBDocs.saveStrategy(id, strategy);
+            if(characters.length > 0) {
+                await DBDocs.saveCharacterBible(id, characters);
+            }
             
-            // 3. Lưu Strategy
-            await DBDocs.saveStrategy(id, aiStrategy);
-            
-            UI.showSuccess("Tuyệt vời! AI đã lập xong chiến lược.");
-            window.location.hash = '#/channel/' + id; // Switch to strategy/detail view
+            UI.showSuccess("Tuyệt vời! Chiến lược và dàn nhân vật đã sẵn sàng.");
+            window.location.hash = '#/channel/' + id;
             
         } catch(e) {
             UI.showError("Lỗi AI: " + e.message);
@@ -134,22 +156,60 @@ export function init() {
         const p = OpenAIService.buildStrategyPrompt(data);
         const combined = p.systemPrompt + "\n\n" + p.userMessage;
 
-        UI.showManualAIModal({
-            title: "Lập Chiến Lược qua ChatGPT",
-            promptText: combined,
-            onConfirm: async (parsedData, close) => {
-                try {
-                    UI.injectLoader('form-card', 'Đang lưu dữ liệu...');
-                    const id = await DBDocs.createChannel(data);
-                    await DBDocs.saveStrategy(id, parsedData);
-                    close();
-                    UI.showSuccess("Đã lưu chiến lược từ ChatGPT!");
-                    window.location.hash = '#/channel/' + id;
-                } catch (e) {
-                    UI.showError("Lỗi lưu dữ liệu: " + e.message);
-                    UI.removeLoader('form-card');
+        // Trình hướng dẫn từng bước
+        const startManualWizard = () => {
+             UI.showManualAIModal({
+                title: "Bước 1: Lấy Chiến lược & Dàn nhân vật",
+                promptText: combined,
+                onConfirm: async (parsedFoundation, closeFirst) => {
+                    const strategy = { ...parsedFoundation };
+                    delete strategy.characters;
+                    const characters = parsedFoundation.characters || [];
+                    const targetCount = parseInt(data.videoCount) || 5;
+                    
+                    closeFirst();
+                    continueManualVideos(strategy, characters, [], 1, targetCount);
                 }
-            }
-        });
+            });
+        };
+
+        const continueManualVideos = (strategy, characters, allVideos, start, total) => {
+            const count = Math.min(10, total - start + 1);
+            const p = OpenAIService.buildVideosBatchPrompt(data, strategy, characters, allVideos, start, count);
+            const combined = p.systemPrompt + "\n\n" + p.userMessage;
+
+            UI.showManualAIModal({
+                title: `Bước 2: Lấy nội dung tập ${start} - ${start + count - 1}`,
+                promptText: combined,
+                onConfirm: async (batchResult, close) => {
+                    if(batchResult && batchResult.videos) {
+                        allVideos = allVideos.concat(batchResult.videos);
+                    }
+                    
+                    close();
+                    if(allVideos.length < total) {
+                        continueManualVideos(strategy, characters, allVideos, allVideos.length + 1, total);
+                    } else {
+                        // Hoàn tất
+                        try {
+                            UI.injectLoader('form-card', 'Đang lưu dữ liệu...');
+                            strategy.videos = allVideos;
+                            const id = await DBDocs.createChannel(data);
+                            await DBDocs.saveStrategy(id, strategy);
+                            if(characters.length > 0) {
+                                await DBDocs.saveCharacterBible(id, characters);
+                            }
+                            UI.showSuccess("Đã nhập thành công chiến lược và nhân vật!");
+                            window.location.hash = '#/channel/' + id;
+                        } catch (e) {
+                            UI.showError("Lỗi lưu trữ: " + e.message);
+                            UI.removeLoader('form-card');
+                        }
+                    }
+                }
+            });
+        };
+
+        startManualWizard();
     });
 }
