@@ -162,8 +162,16 @@ export const UI = {
 
   // Loaders
   showFullLoader(text = 'Đang xử lý...') {
+    // Nếu trang đã có nội dung, đừng xóa sạch (destructive). Chỉ hiện logo xoay nhỏ ở góc hoặc overlay.
+    // Tuy nhiên để đơn giản và đồng bộ, ta giữ nguyên nhưng Router sẽ gọi cái này trước khi nạp template.
     const container = document.getElementById('view-container');
-    container.innerHTML = `<div class="loading-full"><i class="fa-solid fa-spinner fa-spin"></i> ${text}</div>`;
+    if (container) {
+      container.innerHTML = `
+        <div class="loading-full">
+          <i class="fa-solid fa-spinner fa-spin text-primary"></i>
+          <span>${text}</span>
+        </div>`;
+    }
   },
   
   injectLoader(elementId, text = 'Đang xử lý AI...') {

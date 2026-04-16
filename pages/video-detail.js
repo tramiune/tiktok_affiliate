@@ -108,7 +108,7 @@ export async function init(params) {
     }
 
     try {
-        UI.showFullLoader();
+        // Router already showed the load view
         
         currentChannel = await DBDocs.getChannel(currentChannelId);
         const strategy = await DBDocs.getStrategy(currentChannelId);
@@ -119,9 +119,7 @@ export async function init(params) {
         
         scenes = await DBDocs.getVideoScenes(currentChannelId, currentVideoId) || [];
         
-        // Render template back after loader
-        document.getElementById('view-container').innerHTML = template;
-        
+        // Router handles template injection
         renderHeader();
         renderScenes();
         setupEvents();
@@ -357,7 +355,6 @@ function setupEvents() {
                                 scenes = dataToSave;
                                 renderHeader();
                                 renderScenes();
-                                setupEvents();
                                 UI.showToast("Đã nhập kịch bản (JSON) thành công!");
                                 close();
                             } else {

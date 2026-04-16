@@ -68,7 +68,7 @@ export async function init(params) {
     }
 
     try {
-        UI.showFullLoader();
+        // Router already showed the main loader
         
         // Fetch DB
         currentChannel = await DBDocs.getChannel(id);
@@ -102,14 +102,15 @@ export async function init(params) {
 
 async function generateNewStrategy(id, channel) {
     try {
-        UI.setHTML('view-container', '<div class="loading-full"><i class="fa-solid fa-wand-magic-sparkles fa-spin text-primary"></i> Đang sinh chiến lược AI... Hãy chờ khoảng 10-30 giây.</div>');
+        UI.injectLoader('view-container', 'Đang sinh chiến lược AI... Hãy chờ 10-30s.');
         const st = await OpenAIService.generateStrategy(channel);
         await DBDocs.saveStrategy(id, st);
         currentStrategy = st;
-        window.location.reload(); // Reload to render
+        await init({ channelId: id }); // Re-init current page
     } catch (e) {
         UI.showError("Lỗi AI: " + e.message);
-        window.location.hash = '#/dashboard';
+    } finally {
+        UI.removeLoader('view-container');
     }
 }
 
@@ -121,20 +122,23 @@ function manualGenerateStrategy(id, channel) {
         promptText: combined,
         onConfirm: async (parsedData, close) => {
             try {
-                UI.showFullLoader();
+                UI.injectLoader('view-container', 'Đang lưu dữ liệu...');
                 await DBDocs.saveStrategy(id, parsedData);
                 close();
-                window.location.reload();
+                await init({ channelId: id });
             } catch (e) {
                 UI.showError(e.message);
+            } finally {
+                UI.removeLoader('view-container');
             }
         }
     });
 }
 
 function renderStrategy() {
-    // Inject original template since UI.showFullLoader removed it
-    document.getElementById('view-container').innerHTML = template;
+    // Note: Template is already injected by Router
+    const nameEl = document.getElementById('st-channel-name');
+    if(!nameEl) return; // Prevent errors if user navigated away
     
     document.getElementById('st-channel-name').textContent = currentChannel.name;
     

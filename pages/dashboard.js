@@ -79,13 +79,15 @@ export async function init() {
                     bodyHTML: `<p>Bạn có chắc chắn muốn xóa kênh <strong>${channel.name}</strong> không? Hành động này không thể hoàn tác.</p>`,
                     onConfirm: async (close) => {
                         try {
-                            UI.showFullLoader();
+                            UI.injectLoader('channel-list', 'Đang xóa kênh...');
                             await DBDocs.deleteChannel(cid);
                             close();
-                            init(); // Reload list
+                            await init(); // Reload list
                             UI.showToast("Đã xóa kênh thành công.");
                         } catch(err) {
                             UI.showError(err.message);
+                        } finally {
+                            UI.removeLoader('channel-list');
                         }
                     }
                 });
@@ -127,13 +129,15 @@ export async function init() {
                             
                             if(!name) return UI.showError("Tên kênh không được để trống");
                             
-                            UI.showFullLoader();
+                            UI.injectLoader('channel-list', 'Đang cập nhật...');
                             await DBDocs.updateChannel(cid, { name, topic, goal, desc });
                             close();
-                            init();
+                            await init();
                             UI.showToast("Cập nhật kênh thành công.");
                         } catch(err) {
                             UI.showError(err.message);
+                        } finally {
+                            UI.removeLoader('channel-list');
                         }
                     }
                 });

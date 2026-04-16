@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 import { Store } from './store.js';
 
 /**
@@ -31,6 +31,15 @@ export const FirebaseService = {
       app = initializeApp(firebaseConfig);
       auth = getAuth(app);
       db = getFirestore(app);
+      
+      // Bật chế độ Offline / Caching cho Mobile
+      enableIndexedDbPersistence(db).catch((err) => {
+          if (err.code == 'failed-precondition') {
+              console.warn("Persistence failed: Multiple tabs open.");
+          } else if (err.code == 'unimplemented') {
+              console.warn("Persistence failed: Browser doesn't support it.");
+          }
+      });
       
       onAuthStateChanged(auth, (user) => {
           if(user) {

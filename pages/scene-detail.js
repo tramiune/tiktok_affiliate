@@ -78,7 +78,7 @@ export async function init(params) {
     }
 
     try {
-        UI.showFullLoader();
+        // Router already showed the load view
         
         const strategy = await DBDocs.getStrategy(currentChannelId);
         const video = strategy.videos.find(v => v.id == currentVideoId);
@@ -88,9 +88,6 @@ export async function init(params) {
         
         if(!scene) throw new Error("Không tìm thấy cảnh quay này");
         
-        // Render template back after loader
-        document.getElementById('view-container').innerHTML = template;
-
         renderScene(video);
         setupEvents();
     } catch (e) {

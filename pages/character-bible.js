@@ -92,12 +92,10 @@ export async function init(params) {
     }
 
     try {
-        UI.showFullLoader();
+        // Router handles initial loading view
         characters = await DBDocs.getCharacterBible(currentChannelId);
         
-        // Render template back after loader
-        document.getElementById('view-container').innerHTML = template;
-        
+        // Router handles template injection
         renderCharacters();
         setupEvents();
     } catch (e) {
@@ -201,12 +199,10 @@ function setupEvents() {
                 if(!confirm("Kênh này đã có nhân vật. Nếu AI tạo thêm thủ công sẽ nối vào danh sách hiện tại. Tiếp tục?")) return;
             }
             try {
-                UI.showFullLoader();
                 const channel = await DBDocs.getChannel(currentChannelId);
                 const strategy = await DBDocs.getStrategy(currentChannelId);
                 
-                // Hide loader, show modal
-                UI.setHTML('view-container', template); // restore template visually quickly, though not strictly needed here
+                // Modal will open, we don't need to wipe the entire page
                 
                 const p = OpenAIService.buildCharactersPrompt(channel, strategy);
                 const combined = p.systemPrompt + "\\n\\n" + p.userMessage;

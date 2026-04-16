@@ -73,37 +73,52 @@ export const Router = {
   },
 
   loadView: async function(route, params) {
+    const container = document.getElementById('view-container');
+    const startTime = Date.now();
+    
     try {
-      // Show loader
-      const container = document.getElementById('view-container');
-      container.innerHTML = '<div class="loading-full"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải trang...</div>';
+      // 1. Show a less destructive loader (or keep previous if fast)
+      // For mobile, we'll use the full loader but with a timeout fallback
+      container.innerHTML = `
+        <div class="loading-full">
+            <i class="fa-solid fa-spinner fa-spin text-primary"></i>
+            <span>Đang tải nội dung...</span>
+        </div>`;
       
       this.currentRoute = route;
       
-      // Load module dynamically
-      const module = await import(route.modulePath);
+      // 2. Load module and assets
+      const module = await import(route.modulePath + '?t=' + Date.now()); // cache busting for mobile
       this.currentModule = module;
 
-      // Update active nav
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      let hashStr = window.location.hash.split('?')[0]; // bỏ params nếu có
-      let navItem = document.querySelector(`.nav-item[href="${hashStr}"]`);
-      if(navItem) navItem.classList.add('active');
-
-      // Setup view
+      // 3. Setup core view structure
       container.innerHTML = module.template;
       document.getElementById('page-title').textContent = module.title || 'Ứng dụng';
       
+      // 4. Update Navigation UI
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      const cleanHash = window.location.hash.split('/')[1]; 
+      const navItem = document.querySelector(`.nav-item[href*="${cleanHash}"]`);
+      if(navItem) navItem.classList.add('active');
+
+      // 5. Initialize Page (Crucial: Await this!)
       if (module.init) {
-          module.init(params);
+          await module.init(params);
       }
+
+      console.log(`Page ${route.modulePath} loaded in ${Date.now() - startTime}ms`);
+      
     } catch (e) {
-      console.error(e);
-      document.getElementById('view-container').innerHTML = `
+      console.error("Router Error:", e);
+      container.innerHTML = `
         <div class="empty-state">
-           <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-           <h3>Lỗi tải trang</h3>
-           <p>${e.message}</p>
+           <i class="fa-solid fa-circle-exclamation text-danger fa-3x mb-3"></i>
+           <h3>Không thể tải trang</h3>
+           <p class="text-gray mb-4">${e.message || 'Lỗi kết nối mạng hoặc dữ liệu.'}</p>
+           <div class="flex gap-2">
+                <button class="btn btn-primary" onclick="window.location.reload()"><i class="fa-solid fa-rotate"></i> Thử lại ngay</button>
+                <a href="#/dashboard" class="btn btn-secondary">Về Trang chủ</a>
+           </div>
         </div>
       `;
     }
