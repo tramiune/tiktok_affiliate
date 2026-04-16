@@ -40,12 +40,9 @@ export const OpenAIService = {
         }
     },
 
-    // --- PROMPTS CHÍNH ---
-
-    /**
-     * 1. Tạo chiến lược tổng thể và danh sách video/tập
-     */
-    async generateStrategy(channelData) {
+    // --- PROMPT BUILDERS ---
+    
+    buildStrategyPrompt(channelData) {
         const systemPrompt = `
 Bạn là một chuyên gia sáng tạo nội dung TikTok hàng đầu. Hãy phân tích thông tin kênh và tạo ra một chiến lược nội dung hoàn chỉnh kèm danh sách video.
 YÊU CẦU:
@@ -60,7 +57,7 @@ YÊU CẦU:
   "videos": [danh sách các video. Mỗi video gồm: id (string ngẫu nhiên), order (số thứ tự), title (tiêu đề), goal, summary, hook (câu mở đầu), cta]
 Lưu ý: Nếu là Series thì các video phải có tính liên kết chặt chẽ.
 `;
-        const userMsg = `
+        const userMessage = `
 Phân tích và lên chiến lược cho kênh TikTok sau:
 - Tên kênh: ${channelData.name}
 - Chủ đề: ${channelData.topic}
@@ -70,13 +67,10 @@ Phân tích và lên chiến lược cho kênh TikTok sau:
 - Đối tượng: ${channelData.audience}
 - Số video muốn làm đợt này: ${channelData.videoCount}
 `;
-        return this.callAPI(systemPrompt, userMsg);
+        return { systemPrompt, userMessage };
     },
 
-    /**
-     * 2. Tạo nội dung chi tiết theo từng cảnh quay (Scenes)
-     */
-    async generateVideoScenes(videoData, channelContext, characterBible = null) {
+    buildVideoScenesPrompt(videoData, channelContext, characterBible = null) {
         const systemPrompt = `
 Bạn là nhà biên kịch và đạo diễn quay dựng video ngắn.
 Dựa vào kịch bản, hãy viết chi tiết cảnh quay làm input cho hệ thống video AI (VEO 3, Kling).
@@ -100,7 +94,7 @@ CẤU TRÚC JSON DUY NHẤT TRẢ VỀ:
             bibleStr += characterBible.map(c => `- Tên: ${c.name}\n  Ngoại hình: ${c.look}`).join('\n\n');
         }
 
-        const userMsg = `
+        const userMessage = `
 Ngữ cảnh kênh: ${channelContext.name} (${channelContext.topic}).
 ${bibleStr}
 
@@ -110,13 +104,10 @@ Hãy viết kịch bản chi tiết cho video sau:
 - Tóm tắt nội dung: ${videoData.summary}
 - Thông điệp: ${videoData.goal}
 `;
-        return this.callAPI(systemPrompt, userMsg);
+        return { systemPrompt, userMessage };
     },
 
-    /**
-     * 3. Tự động sinh Hồ sơ nhân vật
-     */
-    async generateCharacters(channelContext, strategyData) {
+    buildCharactersPrompt(channelContext, strategyData) {
         const systemPrompt = `
 Bạn là một chuyên gia casting và xây dựng hồ sơ nhân vật cho các Series phim ngắn TikTok.
 Dựa vào định hướng kênh và chiến lược nội dung, hãy tự động sáng tạo ra danh sách các nhân vật chủ chốt.
@@ -127,7 +118,7 @@ YÊU CẦU:
 - Tham số "name", "role", "age", "personality", "note" viết bằng TIẾNG VIỆT.
 `;
 
-        const userMsg = `
+        const userMessage = `
 Phân tích và tự động tạo các nhân vật chính cho Series phim ngắn này.
 - Kênh: ${channelContext.name} (${channelContext.topic})
 - Khán giả: ${channelContext.audience}
@@ -138,6 +129,32 @@ Phân tích và tự động tạo các nhân vật chính cho Series phim ngắ
 
 Hãy tạo cho tôi 2-3 nhân vật cốt lõi.
 `;
-        return this.callAPI(systemPrompt, userMsg);
+        return { systemPrompt, userMessage };
+    },
+
+    // --- PROMPTS CHÍNH ---
+
+    /**
+     * 1. Tạo chiến lược tổng thể và danh sách video/tập
+     */
+    async generateStrategy(channelData) {
+        const p = this.buildStrategyPrompt(channelData);
+        return this.callAPI(p.systemPrompt, p.userMessage);
+    },
+
+    /**
+     * 2. Tạo nội dung chi tiết theo từng cảnh quay (Scenes)
+     */
+    async generateVideoScenes(videoData, channelContext, characterBible = null) {
+        const p = this.buildVideoScenesPrompt(videoData, channelContext, characterBible);
+        return this.callAPI(p.systemPrompt, p.userMessage);
+    },
+
+    /**
+     * 3. Tự động sinh Hồ sơ nhân vật
+     */
+    async generateCharacters(channelContext, strategyData) {
+        const p = this.buildCharactersPrompt(channelContext, strategyData);
+        return this.callAPI(p.systemPrompt, p.userMessage);
     }
 };

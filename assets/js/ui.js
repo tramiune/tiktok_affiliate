@@ -63,6 +63,77 @@ export const UI = {
       else closeModal();
     });
 
+    if (overlay) overlay.classList.remove('hidden');
+  },
+
+  showManualAIModal({ title, promptText, onConfirm }) {
+    const overlay = document.getElementById('modal-container');
+    const titleEl = document.getElementById('modal-title');
+    const bodyEl = document.getElementById('modal-body');
+    const btnCancel = document.getElementById('modal-cancel');
+    const btnConfirm = document.getElementById('modal-confirm');
+
+    titleEl.textContent = title;
+    
+    // Encode HTML để tránh lỗi vỡ giao diện nếu promptText có tag
+    const safePromptText = promptText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    bodyEl.innerHTML = `
+      <div class="form-group mb-4">
+          <label>1. Sao chép toàn bộ Câu lệnh (Prompt) này:</label>
+          <textarea id="manual-prompt-text" class="form-control text-xs font-mono bg-gray-50 text-gray-700" rows="6" readonly>${safePromptText}</textarea>
+          <button class="btn btn-secondary btn-sm mt-2" id="btn-copy-manual-prompt"><i class="fa-solid fa-copy"></i> Sao chép nhanh</button>
+      </div>
+      <div class="form-group">
+          <label>2. Dán kết quả (JSON) mà ChatGPT trả về vào đây:</label>
+          <textarea id="manual-json-result" class="form-control font-mono" rows="6" placeholder='{"các_trường": "dữ_liệu_của_bạn"}'></textarea>
+      </div>
+    `;
+
+    setTimeout(() => {
+        const btnCopy = document.getElementById('btn-copy-manual-prompt');
+        if(btnCopy) {
+            btnCopy.onclick = () => {
+                 const pt = document.getElementById('manual-prompt-text');
+                 pt.select();
+                 document.execCommand('copy');
+                 this.showToast("Đã copy Prompt! Hãy sang ChatGPT và dán vào.");
+            };
+        }
+    }, 50);
+
+    btnConfirm.textContent = 'Lưu kết quả JSON';
+    btnCancel.style.display = 'inline-flex';
+
+    // Xóa event listeners cũ bằng cách clone node
+    const newBtnConfirm = btnConfirm.cloneNode(true);
+    btnConfirm.parentNode.replaceChild(newBtnConfirm, btnConfirm);
+
+    const closeModal = () => {
+      if (overlay) overlay.classList.add('hidden');
+    };
+
+    newBtnConfirm.addEventListener('click', () => {
+      const jsonStr = document.getElementById('manual-json-result').value;
+      if(!jsonStr.trim()) {
+          this.showError("Vui lòng dán kết quả JSON từ ChatGPT.");
+          return;
+      }
+      try {
+          // Xử lý loại bỏ mã markdown code block nếu có dư do Copy nguyên khung Chat
+          let cleanStr = jsonStr.trim();
+          if(cleanStr.startsWith('\`\`\`json')) {
+              cleanStr = cleanStr.replace(/^\`\`\`json/, '').replace(/\`\`\`$/, '').trim();
+          } else if(cleanStr.startsWith('\`\`\`')) {
+              cleanStr = cleanStr.replace(/^\`\`\`/, '').replace(/\`\`\`$/, '').trim();
+          }
+          const parsed = JSON.parse(cleanStr);
+          if (onConfirm) onConfirm(parsed, closeModal);
+      } catch (e) {
+          this.showError("JSON không hợp lệ. Vui lòng copy đúng định dạng chuẩn mà ChatGPT trả về.");
+      }
+    });
+
     btnCancel.onclick = closeModal;
     document.getElementById('modal-close').onclick = closeModal;
 

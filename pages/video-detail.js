@@ -12,7 +12,8 @@ export const template = `
             <p class="text-sm text-gray" id="vid-meta">Kênh: ...</p>
         </div>
         <div class="flex gap-2">
-            <button class="btn btn-primary" id="btn-gen-scenes"><i class="fa-solid fa-wand-magic-sparkles"></i> Sinh cảnh quay AI</button>
+            <button class="btn btn-primary" id="btn-gen-scenes"><i class="fa-solid fa-wand-magic-sparkles"></i> Sinh cảnh quay API</button>
+            <button class="btn btn-secondary" id="btn-gen-manual"><i class="fa-regular fa-comment-dots"></i> Dùng ChatGPT</button>
             <button class="btn btn-secondary" id="btn-back-st"><i class="fa-solid fa-arrow-left"></i> Về Chiến lược</button>
         </div>
     </div>
@@ -171,4 +172,49 @@ function setupEvents() {
             renderScenes();
         }
     };
+    
+    const btnGenManual = document.getElementById('btn-gen-manual');
+    if(btnGenManual) {
+        btnGenManual.onclick = async () => {
+            try {
+                UI.showFullLoader();
+                let characterBible = null;
+                if(currentChannel.type === 'series') {
+                    characterBible = await DBDocs.getCharacterBible(currentChannelId);
+                }
+                
+                UI.setHTML('view-container', template);
+                
+                const p = OpenAIService.buildVideoScenesPrompt(currentVideo, currentChannel, characterBible);
+                const combined = p.systemPrompt + "\\n\\n" + p.userMessage;
+                
+                UI.showManualAIModal({
+                    title: "Sinh cảnh quay qua ChatGPT",
+                    promptText: combined,
+                    onConfirm: async (parsedData, close) => {
+                        try {
+                            if(parsedData && parsedData.scenes) {
+                                scenes = parsedData.scenes;
+                                await DBDocs.saveVideoScenes(currentChannelId, currentVideoId, scenes);
+                                renderHeader();
+                                renderScenes();
+                                setupEvents();
+                                UI.showToast("Đã nhập kịch bản (JSON) thành công!");
+                                close();
+                            } else {
+                                throw new Error("Key 'scenes' không tồn tại trong JSON.");
+                            }
+                        } catch(e) {
+                            UI.showError("Lỗi dữ liệu: " + e.message);
+                        }
+                    }
+                });
+            } catch(e) {
+                UI.showError(e.message);
+            }
+            renderHeader();
+            renderScenes();
+            setupEvents();
+        };
+    }
 }

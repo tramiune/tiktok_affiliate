@@ -44,7 +44,10 @@ export const template = `
         <div class="card">
             <div class="card-header flex justify-between items-center">
                 <h3><i class="fa-solid fa-list-ol text-primary"></i> Lộ Trình Video</h3>
-                <button class="btn btn-primary btn-sm" id="btn-regen"><i class="fa-solid fa-rotate-right"></i> Tạo Lại</button>
+                <div>
+                    <button class="btn btn-secondary btn-sm" id="btn-regen-manual"><i class="fa-regular fa-comment-dots"></i> Dùng ChatGPT</button>
+                    <button class="btn btn-primary btn-sm" id="btn-regen"><i class="fa-solid fa-rotate-right"></i> Tạo Lại</button>
+                </div>
             </div>
             <div class="card-body" style="max-height: 500px; overflow-y: auto;">
                 <div id="st-videos"></div>
@@ -74,15 +77,19 @@ export async function init(params) {
         currentStrategy = await DBDocs.getStrategy(id);
         
         if(!currentStrategy) {
-            UI.showModal({
-                title: "Kênh chưa có chiến lược", 
-                bodyHTML: "<p>Kênh này đang ở trạng thái Nháp. Bạn có muốn AI tạo chiến lược bây giờ không?</p>",
-                onConfirm: async (close) => {
-                    close();
-                    await generateNewStrategy(id, currentChannel);
-                }
-            });
-            UI.setHTML('view-container', '<div class="empty-state">Kênh trống. Đang chờ xác nhận...</div>');
+            UI.setHTML('view-container', `
+                <div class="empty-state">
+                    <i class="fa-solid fa-file-invoice text-gray" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <h3>Kênh này chưa có Chiến Lược!</h3>
+                    <p class="mb-4 text-sm text-gray">Hãy để AI phân tích và lập kế hoạch đường dài cho kênh của bạn.</p>
+                    <div class="flex justify-center gap-2">
+                        <button class="btn btn-primary" id="btn-empty-auto"><i class="fa-solid fa-wand-magic-sparkles"></i> Sinh bằng API</button>
+                        <button class="btn btn-secondary" id="btn-empty-manual"><i class="fa-regular fa-comment-dots"></i> Dùng ChatGPT (Miễn phí)</button>
+                    </div>
+                </div>
+            `);
+            document.getElementById('btn-empty-auto').onclick = () => generateNewStrategy(id, currentChannel);
+            document.getElementById('btn-empty-manual').onclick = () => manualGenerateStrategy(id, currentChannel);
             return;
         }
 
@@ -104,6 +111,25 @@ async function generateNewStrategy(id, channel) {
         UI.showError("Lỗi AI: " + e.message);
         window.location.hash = '#/dashboard';
     }
+}
+
+function manualGenerateStrategy(id, channel) {
+    const p = OpenAIService.buildStrategyPrompt(channel);
+    const combined = p.systemPrompt + "\\n\\n" + p.userMessage;
+    UI.showManualAIModal({
+        title: "Tạo Chiến Lược qua ChatGPT",
+        promptText: combined,
+        onConfirm: async (parsedData, close) => {
+            try {
+                UI.showFullLoader();
+                await DBDocs.saveStrategy(id, parsedData);
+                close();
+                window.location.reload();
+            } catch (e) {
+                UI.showError(e.message);
+            }
+        }
+    });
 }
 
 function renderStrategy() {
@@ -147,12 +173,16 @@ function renderStrategy() {
     // Setup re-gen button
     document.getElementById('btn-regen').onclick = () => {
         UI.showModal({
-            title: "Tạo lại Kế hoạch",
-            bodyHTML: "<p>Hành động này sẽ thay thế lộ trình video hiện tại bằng một lộ trình mới do AI viết. Bạn có chắc chắn không?</p>",
+            title: "Tạo lại Kế hoạch bằng API",
+            bodyHTML: "<p>Hành động này sẽ thay thế lộ trình video hiện tại bằng một lộ trình mới do AI viết. Quá trình này sẽ tốn token từ API Key của bạn. Bạn có chắc chắn không?</p>",
             onConfirm: async (close) => {
                 close();
                 await generateNewStrategy(currentChannel.id, currentChannel);
             }
-        })
+        });
+    };
+    
+    document.getElementById('btn-regen-manual').onclick = () => {
+        manualGenerateStrategy(currentChannel.id, currentChannel);
     };
 }

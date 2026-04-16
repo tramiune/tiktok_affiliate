@@ -13,7 +13,8 @@ export const template = `
         </div>
         <div class="flex gap-2">
             <button class="btn btn-primary" id="btn-add-char"><i class="fa-solid fa-plus"></i> Thêm Nhân Vật</button>
-            <button class="btn btn-secondary" id="btn-ai-gen-chars"><i class="fa-solid fa-wand-magic-sparkles"></i> Phóng tác bằng AI</button>
+            <button class="btn btn-secondary" id="btn-ai-gen-chars"><i class="fa-solid fa-wand-magic-sparkles"></i> Phóng tác bằng API</button>
+            <button class="btn btn-secondary" id="btn-ai-gen-manual"><i class="fa-regular fa-comment-dots"></i> Dùng ChatGPT</button>
             <button class="btn btn-secondary" id="btn-back-st"><i class="fa-solid fa-arrow-left"></i> Về Chiến lược</button>
         </div>
     </div>
@@ -176,6 +177,51 @@ function setupEvents() {
                 UI.showError("Lỗi AI: " + e.message);
                 renderCharacters(); // Khôi phục lại list cũ nếu lỗi
             }
+        };
+    }
+
+    const btnAiGenManual = document.getElementById('btn-ai-gen-manual');
+    if(btnAiGenManual) {
+        btnAiGenManual.onclick = async () => {
+            if(characters.length > 0) {
+                if(!confirm("Kênh này đã có nhân vật. Nếu AI tạo thêm thủ công sẽ nối vào danh sách hiện tại. Tiếp tục?")) return;
+            }
+            try {
+                UI.showFullLoader();
+                const channel = await DBDocs.getChannel(currentChannelId);
+                const strategy = await DBDocs.getStrategy(currentChannelId);
+                
+                // Hide loader, show modal
+                UI.setHTML('view-container', template); // restore template visually quickly, though not strictly needed here
+                
+                const p = OpenAIService.buildCharactersPrompt(channel, strategy);
+                const combined = p.systemPrompt + "\\n\\n" + p.userMessage;
+                
+                UI.showManualAIModal({
+                    title: "Phóng tác Nhân vật qua ChatGPT",
+                    promptText: combined,
+                    onConfirm: async (parsedData, close) => {
+                        try {
+                            if(parsedData && parsedData.characters) {
+                                characters = characters.concat(parsedData.characters);
+                                await DBDocs.saveCharacterBible(currentChannelId, characters);
+                                renderCharacters();
+                                UI.showToast("Đã nhập thành công dàn nhân vật thủ công!");
+                                close();
+                            } else {
+                                throw new Error("Key 'characters' không tồn tại trong JSON trả về.");
+                            }
+                        } catch(e) {
+                            UI.showError("Lỗi dữ liệu: " + e.message);
+                        }
+                    }
+                });
+            } catch(e) {
+                UI.showError(e.message);
+            }
+            // rebind to avoid UI wipe issues
+            renderCharacters();
+            setupEvents();
         };
     }
     
