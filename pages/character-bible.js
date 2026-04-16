@@ -54,8 +54,14 @@ export const template = `
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Mô tả Ngoại hình (Bắt buộc cho AI Video)</label>
-                    <textarea id="char-look" class="form-control" rows="3" placeholder="Ví dụ: Tóc búi cao, đeo kính gọng đen, mặc áo dài hoa nhí..."></textarea>
+                    <label>Appearance DNA (Mô tả kỹ thuật cho AI Video - Tiếng Anh)</label>
+                    <textarea id="char-look" class="form-control" rows="4" placeholder="Ví dụ: 50-year-old Vietnamese woman, oval face, salt-and-pepper hair in a bun, wearing a turquoise brooch..."></textarea>
+                    <div class="form-help">Phần này cực kỳ quan trọng để AI Video giữ đúng khuôn mặt nhân vật qua bộ kịch bản.</div>
+                </div>
+                <div class="form-group">
+                    <label>Link Ảnh tham chiếu (Reference Image URL)</label>
+                    <input type="text" id="char-image" class="form-control" placeholder="https://example.com/character-face.jpg">
+                    <div class="form-help">Dán link ảnh khuôn mặt nhân vật để làm "Neo hình ảnh" cho AI Video.</div>
                 </div>
                 <div class="form-group">
                     <label>Tính cách / Giọng điệu</label>
@@ -112,8 +118,11 @@ function renderCharacters() {
     if(list) list.classList.remove('hidden');
     if(empty) empty.classList.add('hidden');
     
-    list.innerHTML = characters.map((c, index) => `
+    list.innerHTML = characters.map((c, index) => {
+        const dna = c.appearance_dna || c.look || 'Chưa có DNA';
+        return `
         <div class="card char-card">
+            ${c.imageUrl ? `<div class="char-image-preview"><img src="${c.imageUrl}" alt="${c.name}"></div>` : ''}
             <div class="card-body">
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="text-primary">${c.name}</h3>
@@ -123,12 +132,17 @@ function renderCharacters() {
                     </div>
                 </div>
                 <p class="text-xs text-gray mb-2"><strong>Vai trò:</strong> ${c.role || 'Chưa rõ'} | ${c.age || ''}</p>
-                <p class="text-sm mb-2"><strong>Ngoại hình:</strong> ${c.look || 'Chưa mô tả'}</p>
-                <hr class="mb-2">
+                
+                <div class="dna-box">
+                    <div class="dna-label text-xs uppercase mb-1">Appearance DNA (VEO 3.1)</div>
+                    <p class="text-xs font-mono text-gray-700">${dna}</p>
+                </div>
+
+                <hr class="my-2">
                 <p class="text-xs"><strong>Tính cách:</strong> ${c.personality || 'Chưa rõ'}</p>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 
     // Bind edit/delete
     document.querySelectorAll('.edit-char').forEach(btn => {
@@ -240,7 +254,8 @@ function setupEvents() {
                 name: document.getElementById('char-name').value,
                 role: document.getElementById('char-role').value,
                 age: document.getElementById('char-age').value,
-                look: document.getElementById('char-look').value,
+                appearance_dna: document.getElementById('char-look').value,
+                imageUrl: document.getElementById('char-image').value,
                 personality: document.getElementById('char-personality').value,
                 note: document.getElementById('char-note').value,
             };
@@ -282,11 +297,13 @@ function openModal(index = -1) {
         const ageEl = document.getElementById('char-age');
         if(ageEl) ageEl.value = c.age;
         const lookEl = document.getElementById('char-look');
-        if(lookEl) lookEl.value = c.look;
+        if(lookEl) lookEl.value = c.appearance_dna || c.look || '';
+        const imageEl = document.getElementById('char-image');
+        if(imageEl) imageEl.value = c.imageUrl || '';
         const personalityEl = document.getElementById('char-personality');
         if(personalityEl) personalityEl.value = c.personality;
         const noteEl = document.getElementById('char-note');
-        if(noteEl) noteEl.value = c.note;
+        if(noteEl) noteEl.value = c.note || '';
     }
     
     if(modal) modal.classList.add('show');

@@ -55,7 +55,7 @@ YÊU CẦU:
   "pillars": [danh sách 3 mảng nội dung chính],
   "toneOfVoice": (giọng điệu),
   "visualStyle": (phong cách hình ảnh),
-  "characters": [Danh sách 3-5 nhân vật chính (nếu là Series). Mỗi nhân vật gồm: name, role, age, look (Ngoại hình tả bằng TIẾNG ANH chi tiết cho AI Video), personality, note]
+  "characters": [Danh sách 3-5 nhân vật chính (nếu là Series). Mỗi nhân vật gồm: name, role, age, appearance_dna (Ngoại hình tả bằng TIẾNG ANH CHI TIẾT: Chủng tộc, khuôn mặt, tóc, nếp nhăn, và 1 phụ kiện cố định), personality, note]
 `;
         const userMessage = `
 Phân tích và lên chiến lược cho kênh TikTok sau:
@@ -118,7 +118,7 @@ YÊU CẦU SỐ 2 - CHỌN LỌC NHÂN VẬT (CHARACTER SELECTION):
 - TUYỆT ĐỐI KHÔNG đưa tất cả nhân vật vào nếu cốt truyện không yêu cầu.
 
 YÊU CẦU SỐ 3 - ĐỒNG NHẤT NHÂN VẬT (CONSISTENCY):
-Trong "veo3_prompt" (prompt tiếng Anh), khi một nhân vật xuất hiện, bạn BẮT BUỘC COPY Y NGUYÊN dòng "Ngoại hình (look)" của nhân vật đó từ hồ sơ và chèn vào prompt. KHÔNG được đổi từ. AI video cần text mô tả giống nhau 100% để giữ đúng 1 khuôn mặt.
+Trong "veo3_prompt" (prompt tiếng Anh), khi một nhân vật xuất hiện, bạn BẮT BUỘC CHÈN NGUYÊN VĂN đoạn "Appearance DNA" của nhân vật đó vào đầu cụm mô tả chủ thể. KHÔNG được đổi từ. AI video cần text mô tả kỹ thuật giống nhau 100% để giữ đúng 1 khuôn mặt.
 
 CẤU TRÚC JSON DUY NHẤT TRẢ VỀ:
 {"scenes": [{ "scene_number", "goal", "setting", "characters", "action", "emotion", "camera_angle", "lighting", "voice_over", "veo3_prompt" }]}
@@ -145,27 +145,29 @@ Hãy viết kịch bản cảnh quay chi tiết cho tập phim sau:
         return { systemPrompt, userMessage };
     },
 
-    buildCharactersPrompt(channelContext, strategyData) {
+buildCharactersPrompt(channelContext, strategyData) {
         const systemPrompt = `
-Bạn là một chuyên gia casting và xây dựng hồ sơ nhân vật cho các Series phim ngắn TikTok.
-Dựa vào định hướng kênh và chiến lược nội dung, hãy tự động sáng tạo ra danh sách các nhân vật chủ chốt.
+Bạn là chuyên gia thiết kế nhân vật cho AI Video (Veo, Kling, Runway). 
+Nhiệm vụ của bạn là dựa trên chiến lược kênh để phóng tác dàn nhân vật chi tiết.
 
-YÊU CẦU:
-- Trả về CHUẨN JSON duy nhất: {"characters": [{"name", "role", "age", "look", "personality", "note"}]}
-- Tham số "look" (Ngoại hình) BẮT BUỘC viết bằng TIẾNG ANH thật chi tiết, chuẩn xác như một Prompt để nạp vào VEO 3, Midjourney. Mô tả kỹ khuôn mặt, trang phục, sắc tộc, độ tuổi.
-- Tham số "name", "role", "age", "personality", "note" viết bằng TIẾNG VIỆT.
+QUY TẮC QUAN TRỌNG NHẤT - APPEARANCE DNA:
+Đối với mỗi nhân vật, phần "appearance_dna" (ngoại hình) phải được viết bằng TIẾNG ANH cực kỳ chi tiết, bao gồm:
+1. Chủng tộc và tuổi cụ thể (ví dụ: Vietnamese woman, late 50s).
+2. Cấu trúc khuôn mặt (ví dụ: oval face, high cheekbones, deep-set eyes, thin lips).
+3. Đặc điểm tóc và màu sắc (ví dụ: salt-and-pepper hair tied in a tight bun).
+4. Trang phục mặc định (luôn mặc bộ đồ này để giữ đồng nhất).
+5. MỘT PHỤ KIỆN DUY NHẤT (ví dụ: một chiếc trâm cài tóc bằng bạc, hoặc nốt ruồi ở cằm).
+
+Mục tiêu là mô tả sao cho AI Video chỉ cần đọc đoạn này là vẽ ra đúng 1 người duy nhất.
+
+CẤU TRÚC JSON:
+{"characters": [{ "name", "role", "age", "personality", "appearance_dna", "note" }]}
 `;
 
         const userMessage = `
-Phân tích và tự động tạo các nhân vật chính cho Series phim ngắn này.
-- Kênh: ${channelContext.name} (${channelContext.topic})
-- Khán giả: ${channelContext.audience}
-- Concept: ${strategyData.conceptName || ''}
-- Giọng điệu: ${strategyData.toneOfVoice || ''}
-- Visual Style: ${strategyData.visualStyle || ''}
-- Pillars (Nội dung chính): ${(strategyData.pillars||[]).join(', ')}
-
-Hãy tạo cho tôi 3-5 nhân vật cốt lõi.
+Kênh: ${channelContext.name} (${channelContext.topic})
+Định hướng nội dung: ${strategyData.concept}
+Dàn nhân vật cần thiết cho phong cách này là gì? Hãy phóng tác chi tiết.
 `;
         return { systemPrompt, userMessage };
     },
