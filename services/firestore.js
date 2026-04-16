@@ -91,7 +91,7 @@ export const DBDocs = {
             return snap.data().data;
         }
         return null;
-    }
+    },
 
     // -- LƯU CHARACTER BIBLE --
     async saveCharacterBible(channelId, characters) {
