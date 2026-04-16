@@ -1,14 +1,14 @@
 import { DBDocs } from '../services/firestore.js';
 import { UI } from '../assets/js/ui.js';
 
-export const title = 'Character Bible';
+export const title = 'Hồ sơ nhân vật';
 
 export const template = `
 <div class="page-container">
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h2><i class="fa-solid fa-users text-primary"></i> Quản lý Nhân vật</h2>
-            <p class="text-sm text-gray">Thiết lập nhân vật để AI giữ được sự đồng nhất (Consistency) giữa các tập.</p>
+            <h2><i class="fa-solid fa-users text-primary"></i> Hồ sơ Nhân vật</h2>
+            <p class="text-sm text-gray">Thiết lập nhân vật để AI giữ được sự đồng nhất (Consistency) giữa các tập phim.</p>
         </div>
         <div class="flex gap-2">
             <button class="btn btn-primary" id="btn-add-char"><i class="fa-solid fa-plus"></i> Thêm Nhân Vật</button>
@@ -85,6 +85,10 @@ export async function init(params) {
     try {
         UI.showFullLoader();
         characters = await DBDocs.getCharacterBible(currentChannelId);
+        
+        // Render template back after loader
+        document.getElementById('view-container').innerHTML = template;
+        
         renderCharacters();
         setupEvents();
     } catch (e) {
@@ -115,10 +119,10 @@ function renderCharacters() {
                         <button class="btn btn-sm btn-icon text-danger delete-char" data-index="${index}"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
-                <p class="text-xs text-gray mb-2"><strong>Vai trò:</strong> ${c.role || 'N/A'} | ${c.age || ''}</p>
+                <p class="text-xs text-gray mb-2"><strong>Vai trò:</strong> ${c.role || 'Chưa rõ'} | ${c.age || ''}</p>
                 <p class="text-sm mb-2"><strong>Ngoại hình:</strong> ${c.look || 'Chưa mô tả'}</p>
                 <hr class="mb-2">
-                <p class="text-xs"><strong>Tính cách:</strong> ${c.personality || 'N/A'}</p>
+                <p class="text-xs"><strong>Tính cách:</strong> ${c.personality || 'Chưa rõ'}</p>
             </div>
         </div>
     `).join('');

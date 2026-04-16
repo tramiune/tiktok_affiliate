@@ -35,7 +35,7 @@ export const template = `
         </div>
         <div class="card-body text-sm text-gray">
             <p><strong>TikTok AI Content Planner</strong> là công cụ giúp quản lý kịch bản và kế hoạch kênh bằng cách tận dụng trí tuệ nhân tạo.</p>
-            <p class="mt-2 text-warning"><i class="fa-solid fa-triangle-exclamation"></i> Lưu ý: Bạn sẽ tự chi trả phí API dựa trên lượng token OpenAI sử dụng trong mỗi lần thiết lập chiến lược hay sinh Prompt.</p>
+            <p class="mt-2 text-warning"><i class="fa-solid fa-triangle-exclamation"></i> Lưu ý: Bạn sẽ tự chi trả phí API dựa trên lượng token OpenAI sử dụng trong mỗi lần thiết lập chiến lược hay sinh câu lệnh AI.</p>
         </div>
     </div>
 </div>

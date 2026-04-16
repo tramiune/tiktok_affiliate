@@ -115,7 +115,7 @@ function renderStrategy() {
     // Series Action
     if(currentChannel.type === 'series') {
         document.getElementById('st-series-actions').innerHTML = `
-            <a href="#/character-bible/${currentChannel.id}" class="btn btn-secondary"><i class="fa-solid fa-users"></i> Character Bible</a>
+            <a href="#/character-bible/${currentChannel.id}" class="btn btn-secondary"><i class="fa-solid fa-users"></i> Hồ sơ nhân vật</a>
         `;
     }
 

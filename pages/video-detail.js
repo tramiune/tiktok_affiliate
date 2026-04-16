@@ -87,6 +87,9 @@ export async function init(params) {
         
         scenes = await DBDocs.getVideoScenes(currentChannelId, currentVideoId) || [];
         
+        // Render template back after loader
+        document.getElementById('view-container').innerHTML = template;
+        
         renderHeader();
         renderScenes();
         setupEvents();
@@ -97,7 +100,7 @@ export async function init(params) {
 
 function renderHeader() {
     document.getElementById('vid-title').textContent = currentVideo.title;
-    document.getElementById('vid-meta').textContent = `Kênh: ${currentChannel.name} | Tập: ${currentVideo.order || 'N/A'}`;
+    document.getElementById('vid-meta').textContent = `Kênh: ${currentChannel.name} | Tập: ${currentVideo.order || 'Chưa rõ'}`;
     document.getElementById('vid-goal').textContent = currentVideo.goal;
     document.getElementById('vid-hook').textContent = currentVideo.hook;
     document.getElementById('vid-cta').textContent = currentVideo.cta;
@@ -120,7 +123,7 @@ function renderScenes() {
             <div class="card-body">
                 <div class="flex justify-between items-center mb-3">
                     <span class="badge badge-primary">Cảnh ${s.scene_number || (idx+1)}</span>
-                    <a href="#/scene-detail/${currentChannelId}/${currentVideoId}/${idx}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-eye"></i> Xem & Lấy Prompt VEO 3</a>
+                    <a href="#/scene-detail/${currentChannelId}/${currentVideoId}/${idx}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-eye"></i> Xem & Lấy câu lệnh VEO 3</a>
                 </div>
                 <div class="grid-2">
                     <div>

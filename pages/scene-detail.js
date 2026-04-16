@@ -11,7 +11,7 @@ export const template = `
             <p class="text-sm text-gray" id="sc-meta">Video: ...</p>
         </div>
         <div class="flex gap-2">
-            <button class="btn btn-primary" id="btn-copy-prompt"><i class="fa-solid fa-copy"></i> Sao chép Prompt VEO 3</button>
+            <button class="btn btn-primary" id="btn-copy-prompt"><i class="fa-solid fa-copy"></i> Sao chép câu lệnh VEO 3</button>
             <button class="btn btn-secondary" id="btn-back-vid"><i class="fa-solid fa-arrow-left"></i> Về Video</button>
         </div>
     </div>
@@ -30,7 +30,7 @@ export const template = `
                 </div>
                 <div class="grid-2">
                     <div class="form-group">
-                        <label>Bối cảnh (Setting)</label>
+                        <label>Bối cảnh</label>
                         <input type="text" id="sc-setting" class="form-control">
                     </div>
                     <div class="form-group">
@@ -44,10 +44,10 @@ export const template = `
 
         <div class="card bg-dark text-white">
             <div class="card-header border-gray-700">
-                <h3 class="text-white"><i class="fa-solid fa-code text-primary"></i> AI Generation Prompt (VEO 3)</h3>
+                <h3 class="text-white"><i class="fa-solid fa-code text-primary"></i> Câu lệnh tạo Video AI (Prompt VEO 3)</h3>
             </div>
             <div class="card-body">
-                <p class="text-xs text-gray-400 mb-2">Dùng Prompt này để dán vào các công cụ Gen Video như VEO 3, Kling, Luma...</p>
+                <p class="text-xs text-gray-400 mb-2">Dùng câu lệnh này để dán vào các công cụ tạo Video AI như VEO 3, Kling, Luma...</p>
                 <div class="prompt-box" id="sc-prompt-box">
                     <code id="sc-veo-prompt" style="color: #60a5fa; font-family: monospace; display: block; padding: 10px; background: #1a1a1a; border-radius: 4px; border: 1px solid #333; word-break: break-word;"></code>
                 </div>
@@ -87,6 +87,9 @@ export async function init(params) {
         scene = scenes[currentSceneId];
         
         if(!scene) throw new Error("Không tìm thấy cảnh quay này");
+        
+        // Render template back after loader
+        document.getElementById('view-container').innerHTML = template;
 
         renderScene(video);
         setupEvents();
@@ -116,7 +119,7 @@ function setupEvents() {
     document.getElementById('btn-copy-prompt').onclick = () => {
         const prompt = document.getElementById('sc-veo-prompt').textContent;
         navigator.clipboard.writeText(prompt).then(() => {
-            UI.showToast("Đã sao chép prompt!");
+            UI.showToast("Đã sao chép câu lệnh!");
         });
     };
 
