@@ -251,8 +251,12 @@ function setupEvents() {
     const btnCopyAll = document.getElementById('btn-copy-all');
     if(btnCopyAll) {
         btnCopyAll.onclick = () => {
-            if(!scenes || scenes.length === 0) return;
-            const text = scenes.map((s, idx) => `SCENE ${s.scene_number || (idx+1)} PROMPT:\n${s.veo3_prompt}`).join('\n\n---\n\n');
+            const list = Array.isArray(scenes) ? scenes : (scenes.scenes || []);
+            if(list.length === 0) {
+                UI.showError("Chưa có kịch bản để sao chép!");
+                return;
+            }
+            const text = list.map((s, idx) => `SCENE ${s.scene_number || (idx+1)} PROMPT:\n${s.veo3_prompt}`).join('\n\n---\n\n');
             UI.copyToClipboard(text, "Đã sao chép tất cả kịch bản!");
         };
     }
@@ -260,8 +264,12 @@ function setupEvents() {
     const btnExportTxt = document.getElementById('btn-export-txt');
     if(btnExportTxt) {
         btnExportTxt.onclick = () => {
-            if(!scenes || scenes.length === 0) return;
-            const text = scenes.map((s, idx) => `SCENE ${s.scene_number || (idx+1)}:\nAction: ${s.action}\nVoice: ${s.voice_over}\nPrompt: ${s.veo3_prompt}`).join('\n\n====================\n\n');
+            const list = Array.isArray(scenes) ? scenes : (scenes.scenes || []);
+            if(list.length === 0) {
+                UI.showError("Chưa có kịch bản để xuất!");
+                return;
+            }
+            const text = list.map((s, idx) => `SCENE ${s.scene_number || (idx+1)}:\nAction: ${s.action}\nVoice: ${s.voice_over}\nPrompt: ${s.veo3_prompt}`).join('\n\n====================\n\n');
             const blob = new Blob([text], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -281,7 +289,9 @@ function setupEvents() {
         const copyBtn = e.target.closest('.quick-copy');
         if(copyBtn) {
             const idx = copyBtn.getAttribute('data-idx');
-            const scene = scenes[idx];
+            const sceneList = Array.isArray(scenes) ? scenes : (scenes.scenes || []);
+            const scene = sceneList[idx];
+            
             if(scene && scene.veo3_prompt) {
                 // 1. Copy to clipboard
                 await UI.copyToClipboard(scene.veo3_prompt, `Đã copy Prompt cảnh ${parseInt(idx)+1}`);
