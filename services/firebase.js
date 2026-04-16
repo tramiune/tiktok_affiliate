@@ -8,12 +8,13 @@ import { Store } from './store.js';
  * Yêu cầu người dùng thay block này bằng Config thật từ Firebase console.
  */
 const firebaseConfig = {
-  apiKey: "AIzaSy_MOCK_KEY_PLEASE_CHANGE",
-  authDomain: "mock-project.firebaseapp.com",
-  projectId: "mock-project",
-  storageBucket: "mock-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef123456"
+  apiKey: "AIzaSyAJ-4VLQNY2MBonRizyx8cRpqcGZhur2gI",
+  authDomain: "notes-10acb.firebaseapp.com",
+  projectId: "notes-10acb",
+  storageBucket: "notes-10acb.appspot.com",
+  messagingSenderId: "649788285348",
+  appId: "1:649788285348:web:ba950a23c01b530511a131",
+  measurementId: "G-CK1D1S6BSK"
 };
 
 let app, auth, db;
