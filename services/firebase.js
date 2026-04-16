@@ -50,7 +50,7 @@ export const FirebaseService = {
     }
   },
 
-  async loginWithGoogle() {
+  loginWithGoogle: async function() {
     if(mockMode) {
         // Mock login
         Store.setCurrentUser({ uid: 'mock_uid', displayName: 'Người dùng Demo', photoURL: '' });
@@ -66,7 +66,7 @@ export const FirebaseService = {
     }
   },
 
-  async logout() {
+  logout: async function() {
     if(mockMode) {
         Store.remove('current_user');
         return true;

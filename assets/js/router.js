@@ -19,7 +19,7 @@ export const Router = {
   currentRoute: null,
   currentModule: null,
 
-  async navigate() {
+  navigate: async function() {
     let hash = window.location.hash || '#/dashboard';
     
     // Xử lý các hash có ID (vd: #/video-detail/channelId/videoId)
@@ -72,7 +72,7 @@ export const Router = {
     });
   },
 
-  async loadView(route, params) {
+  loadView: async function(route, params) {
     try {
       // Show loader
       const container = document.getElementById('view-container');

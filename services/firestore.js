@@ -19,7 +19,7 @@ function getUser() {
 export const DBDocs = {
     
     // -- LẤY DANH SÁCH CHANNELS --
-    async getChannels() {
+    getChannels: async function() {
         const user = getUser();
         if(FirebaseService.isMockUser()) {
             return getStorage('channels').filter(c => c.ownerId === user.uid).sort((a,b) => b.createdAt - a.createdAt);
@@ -31,7 +31,7 @@ export const DBDocs = {
     },
     
     // -- TẠO KÊNH MỚI --
-    async createChannel(channelData) {
+    createChannel: async function(channelData) {
         const user = getUser();
         const payload = {
             ...channelData,
@@ -53,7 +53,7 @@ export const DBDocs = {
     },
     
     // -- LẤY THÔNG TIN CHANNELS --
-    async getChannel(id) {
+    getChannel: async function(id) {
         if(FirebaseService.isMockUser()) {
             return getStorage('channels').find(c => c.id === id);
         }
@@ -63,7 +63,7 @@ export const DBDocs = {
     },
 
     // -- LƯU CHIẾN LƯỢC --
-    async saveStrategy(channelId, strategyData) {
+    saveStrategy: async function(channelId, strategyData) {
         if(FirebaseService.isMockUser()) {
             const list = getStorage('strategies').filter(s => s.channelId !== channelId);
             list.push({ channelId, data: strategyData });
@@ -81,7 +81,7 @@ export const DBDocs = {
     },
     
     // -- LẤY CHIẾN LƯỢC --
-    async getStrategy(channelId) {
+    getStrategy: async function(channelId) {
         if(FirebaseService.isMockUser()) {
             const item = getStorage('strategies').find(s => s.channelId === channelId);
             return item ? item.data : null;
@@ -94,7 +94,7 @@ export const DBDocs = {
     },
 
     // -- LƯU CHARACTER BIBLE --
-    async saveCharacterBible(channelId, characters) {
+    saveCharacterBible: async function(channelId, characters) {
         if(FirebaseService.isMockUser()) {
             const list = getStorage('character_bibles').filter(cb => cb.channelId !== channelId);
             list.push({ channelId, characters });
@@ -106,7 +106,7 @@ export const DBDocs = {
     },
 
     // -- LẤY CHARACTER BIBLE --
-    async getCharacterBible(channelId) {
+    getCharacterBible: async function(channelId) {
         if(FirebaseService.isMockUser()) {
             const item = getStorage('character_bibles').find(cb => cb.channelId === channelId);
             return item ? item.characters : [];
@@ -116,7 +116,7 @@ export const DBDocs = {
     },
 
     // -- LƯU VIDEO SCENES --
-    async saveVideoScenes(channelId, videoId, scenes) {
+    saveVideoScenes: async function(channelId, videoId, scenes) {
         const docId = `${channelId}_${videoId}`;
         if(FirebaseService.isMockUser()) {
             const list = getStorage('video_scenes').filter(vs => vs.id !== docId);
@@ -129,7 +129,7 @@ export const DBDocs = {
     },
 
     // -- LẤY VIDEO SCENES --
-    async getVideoScenes(channelId, videoId) {
+    getVideoScenes: async function(channelId, videoId) {
         const docId = `${channelId}_${videoId}`;
         if(FirebaseService.isMockUser()) {
             const item = getStorage('video_scenes').find(vs => vs.id === docId);
