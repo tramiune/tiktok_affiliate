@@ -220,8 +220,9 @@ function renderScenes() {
                 <div class="grid-2">
                     <div>
                         <p class="text-xs text-gray uppercase mb-1">Hành động / Bối cảnh:</p>
-                        <p class="text-sm mb-3"><strong>${s.characters || ''}</strong>: ${s.action}</p>
+                        <p class="text-sm mb-3"><strong>${(s.characters || '').replace(/undefined/g, '')}</strong>: ${s.action}</p>
                         <p class="text-xs text-gray italic"><i class="fa-solid fa-location-dot"></i> ${s.setting}</p>
+                        ${!s.veo3_prompt ? '<p class="text-xs text-danger"><i class="fa-solid fa-circle-exclamation"></i> Thiếu Video Prompt. Vui lòng sinh lại.</p>' : ''}
                     </div>
                     <div>
                         <p class="text-xs text-gray uppercase mb-1">Voice Over / Lời thoại:</p>
