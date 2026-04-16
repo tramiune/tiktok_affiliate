@@ -48,12 +48,12 @@ export const template = `
             </div>
             <div class="card-body">
                 <p class="text-xs text-gray-400 mb-2">Dùng câu lệnh này để dán vào các công cụ tạo Video AI như VEO 3, Kling, Luma...</p>
-                <div class="prompt-box" id="sc-prompt-box">
-                    <code id="sc-veo-prompt" style="color: #60a5fa; font-family: monospace; display: block; padding: 10px; background: #1a1a1a; border-radius: 4px; border: 1px solid #333; word-break: break-word;"></code>
+                <div class="form-group mb-4">
+                    <textarea id="sc-veo-prompt" class="form-control bg-dark text-blue-400 border-gray-700 font-mono" rows="8" placeholder="Hệ thống chưa tạo prompt cho cảnh này..."></textarea>
                 </div>
-                <div class="mt-4">
+                <div>
                     <p class="text-xs text-gray-400 mb-1">Cảm xúc / Mood:</p>
-                    <span class="badge badge-secondary" id="sc-emotion">...</span>
+                    <input type="text" id="sc-emotion" class="form-control bg-dark text-white border-gray-700" placeholder="Ví dụ: Cinematic, Sad, High Energy...">
                 </div>
             </div>
         </div>
@@ -106,8 +106,8 @@ function renderScene(video) {
     document.getElementById('sc-setting').value = scene.setting;
     document.getElementById('sc-camera').value = scene.camera_angle || "";
     
-    document.getElementById('sc-veo-prompt').textContent = scene.veo3_prompt;
-    document.getElementById('sc-emotion').textContent = scene.emotion || "Trung tính";
+    document.getElementById('sc-veo-prompt').value = scene.veo3_prompt || "";
+    document.getElementById('sc-emotion').value = scene.emotion || "";
 }
 
 function setupEvents() {
@@ -116,7 +116,7 @@ function setupEvents() {
     };
 
     document.getElementById('btn-copy-prompt').onclick = () => {
-        const prompt = document.getElementById('sc-veo-prompt').textContent;
+        const prompt = document.getElementById('sc-veo-prompt').value;
         navigator.clipboard.writeText(prompt).then(() => {
             UI.showToast("Đã sao chép câu lệnh!");
         });
@@ -127,6 +127,8 @@ function setupEvents() {
         scene.voice_over = document.getElementById('sc-voice').value;
         scene.setting = document.getElementById('sc-setting').value;
         scene.camera_angle = document.getElementById('sc-camera').value;
+        scene.veo3_prompt = document.getElementById('sc-veo-prompt').value;
+        scene.emotion = document.getElementById('sc-emotion').value;
         
         scenes.scenes[currentSceneId] = scene;
         
