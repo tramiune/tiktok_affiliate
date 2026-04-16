@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where, orderBy, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where, orderBy, deleteDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { FirebaseService } from './firebase.js';
 import { Store } from './store.js';
 
@@ -75,7 +75,9 @@ export const DBDocs = {
             if(idx > -1) { channels[idx].status = 'planned'; setStorage('channels', channels); }
             return true;
         }
-        // ... (Triển khai Firestore thực tế tương tự)
+        await updateDoc(doc(FirebaseService.getDb(), "channels", channelId), { status: 'planned' });
+        await setDoc(doc(FirebaseService.getDb(), "strategies", channelId), { channelId, data: strategyData });
+        return true;
     },
     
     // -- LẤY CHIẾN LƯỢC --
@@ -84,8 +86,11 @@ export const DBDocs = {
             const item = getStorage('strategies').find(s => s.channelId === channelId);
             return item ? item.data : null;
         }
-        // ...
-        return null; // Mock fallback
+        const snap = await getDoc(doc(FirebaseService.getDb(), "strategies", channelId));
+        if(snap.exists()) {
+            return snap.data().data;
+        }
+        return null;
     }
 
     // (Vì code giới hạn, các module dưới sẽ mock LocalStorage để test chạy được, thay firestore logic trong prod).
