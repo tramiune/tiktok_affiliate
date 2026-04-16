@@ -106,15 +106,19 @@ Lưu ý: Viết tiêu đề và tóm tắt lôi cuốn, đúng phong cách TikTo
 
     buildVideoScenesPrompt(videoData, channelContext, characterBible = null) {
         const systemPrompt = `
-Bạn là nhà biên kịch và đạo diễn quay dựng video ngắn.
-Dựa vào kịch bản, hãy viết chi tiết cảnh quay làm input cho hệ thống video AI (VEO 3, Kling).
+Bạn là nhà biên kịch và đạo diễn quay dựng video ngắn chuyên nghiệp.
+Dựa vào kịch bản, hãy viết chi tiết cảnh quay làm kịch bản hình ảnh (Storyboard) cho hệ thống video AI (VEO 3, Kling).
 
 YÊU CẦU SỐ 1 - ĐỘ DÀI VÀ SỐ LƯỢNG CẢNH:
-BẮT BUỘC phải phân rã kịch bản này ra thành mạch truyện dài từ 15 ĐẾN 20 CẢNH QUAY (Scenes) liên tục, logic và tiếp nối nhau để video có mạch truyện chi tiết.
+BẮT BUỘC phải phân rã kịch bản này ra thành mạch truyện dài từ 15 ĐẾN 20 CẢNH QUAY (Scenes) liên tục, logic và tiếp nối nhau.
 
-YÊU CẦU SỐ 2 - ĐỒNG NHẤT NHÂN VẬT (CONSISTENCY):
-Trong "veo3_prompt" (prompt tiếng Anh để vẽ video), khi nhân vật xuất hiện, bạn BẮT BUỘC COPY Y NGUYÊN dòng "Ngoại hình (look)" của nhân vật đó từ Character Bible và chèn vào prompt. KHÔNG được đổi từ, KHÔNG được viết lại. 
-AI Video cần chuỗi text mô tả hoàn toàn giống nhau 100% ở mọi cảnh để giữ đúng 1 khuôn mặt.
+YÊU CẦU SỐ 2 - CHỌN LỌC NHÂN VẬT (CHARACTER SELECTION):
+- Dưới đây là "Character Bible" (Hồ sơ nhân vật) của toàn bộ series. 
+- Đối với video cụ thể này, bạn chỉ được CHỌN và SỬ DỤNG những nhân vật thực sự liên quan đến nội dung của tập này. 
+- TUYỆT ĐỐI KHÔNG đưa tất cả nhân vật vào nếu cốt truyện không yêu cầu.
+
+YÊU CẦU SỐ 3 - ĐỒNG NHẤT NHÂN VẬT (CONSISTENCY):
+Trong "veo3_prompt" (prompt tiếng Anh), khi một nhân vật xuất hiện, bạn BẮT BUỘC COPY Y NGUYÊN dòng "Ngoại hình (look)" của nhân vật đó từ hồ sơ và chèn vào prompt. KHÔNG được đổi từ. AI video cần text mô tả giống nhau 100% để giữ đúng 1 khuôn mặt.
 
 CẤU TRÚC JSON DUY NHẤT TRẢ VỀ:
 {"scenes": [{ "scene_number", "goal", "setting", "characters", "action", "emotion", "camera_angle", "lighting", "voice_over", "veo3_prompt" }]}
@@ -124,7 +128,7 @@ CẤU TRÚC JSON DUY NHẤT TRẢ VỀ:
 
         let bibleStr = '';
         if (characterBible && characterBible.length > 0) {
-            bibleStr = 'CHARACTER BIBLE (TUYỆT ĐỐI CHÈN NGUYÊN VĂN PHẦN NGOẠI HÌNH VÀO VEO3_PROMPT LÚC NHÂN VẬT XUẤT HIỆN):\n';
+            bibleStr = 'CHIẾN LƯỢC NHÂN VẬT SERIES (CHỈ CHỌN NHÂN VẬT CẦN THIẾT CHO TẬP NÀY):\n';
             bibleStr += characterBible.map(c => `- Tên: ${c.name}\n  Ngoại hình: ${c.look}`).join('\n\n');
         }
 
@@ -132,11 +136,11 @@ CẤU TRÚC JSON DUY NHẤT TRẢ VỀ:
 Ngữ cảnh kênh: ${channelContext.name} (${channelContext.topic}).
 ${bibleStr}
 
-Hãy viết kịch bản chi tiết cho video sau:
+Hãy viết kịch bản cảnh quay chi tiết cho tập phim sau:
 - Tiêu đề: ${videoData.title}
 - Hook: ${videoData.hook}
 - Tóm tắt nội dung: ${videoData.summary}
-- Thông điệp: ${videoData.goal}
+- Thông điệp cần truyền tải: ${videoData.goal}
 `;
         return { systemPrompt, userMessage };
     },
