@@ -7,6 +7,7 @@ const routes = {
   '#/login': { modulePath: '../../pages/login.js', authRequired: false },
   '#/dashboard': { modulePath: '../../pages/dashboard.js', authRequired: true },
   '#/channel/create': { modulePath: '../../pages/channel-create.js', authRequired: true },
+  '#/channel': { modulePath: '../../pages/strategy.js', authRequired: true },
   '#/settings': { modulePath: '../../pages/settings.js', authRequired: true },
   '#/strategy': { modulePath: '../../pages/strategy.js', authRequired: true },
   '#/character-bible': { modulePath: '../../pages/character-bible.js', authRequired: true },
