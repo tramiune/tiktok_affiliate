@@ -54,7 +54,9 @@ export const UI = {
     const newBtnConfirm = btnConfirm.cloneNode(true);
     btnConfirm.parentNode.replaceChild(newBtnConfirm, btnConfirm);
 
-    const closeModal = () => overlay.classList.add('hidden');
+    const closeModal = () => {
+      if (overlay) overlay.classList.add('hidden');
+    };
 
     newBtnConfirm.addEventListener('click', () => {
       if (onConfirm) onConfirm(closeModal);
@@ -64,7 +66,7 @@ export const UI = {
     btnCancel.onclick = closeModal;
     document.getElementById('modal-close').onclick = closeModal;
 
-    overlay.classList.remove('hidden');
+    if (overlay) overlay.classList.remove('hidden');
   },
 
   // Loaders

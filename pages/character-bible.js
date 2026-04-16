@@ -97,14 +97,14 @@ function renderCharacters() {
     const empty = document.getElementById('char-empty');
 
     if(characters.length === 0) {
-        list.classList.add('hidden');
-        empty.classList.remove('hidden');
+        if(list) list.classList.add('hidden');
+        if(empty) empty.classList.remove('hidden');
         return;
     }
 
-    list.classList.remove('hidden');
-    empty.classList.add('hidden');
-
+    if(list) list.classList.remove('hidden');
+    if(empty) empty.classList.add('hidden');
+    
     list.innerHTML = characters.map((c, index) => `
         <div class="card char-card">
             <div class="card-body">
@@ -133,41 +133,52 @@ function renderCharacters() {
 }
 
 function setupEvents() {
-    document.getElementById('btn-back-st').onclick = () => {
-        window.location.hash = `#/channel/${currentChannelId}`;
-    };
-
-    document.getElementById('btn-add-char').onclick = () => openModal(-1);
-    document.getElementById('close-modal').onclick = closeModal;
-    document.getElementById('btn-cancel-char').onclick = closeModal;
-
-    document.getElementById('char-form').onsubmit = async (e) => {
-        e.preventDefault();
-        const index = parseInt(document.getElementById('char-index').value);
-        const data = {
-            name: document.getElementById('char-name').value,
-            role: document.getElementById('char-role').value,
-            age: document.getElementById('char-age').value,
-            look: document.getElementById('char-look').value,
-            personality: document.getElementById('char-personality').value,
-            note: document.getElementById('char-note').value,
+    const btnBackSt = document.getElementById('btn-back-st');
+    if(btnBackSt) {
+        btnBackSt.onclick = () => {
+            window.location.hash = `#/channel/${currentChannelId}`;
         };
+    }
 
-        if(index === -1) {
-            characters.push(data);
-        } else {
-            characters[index] = data;
-        }
+    const btnAddChar = document.getElementById('btn-add-char');
+    if(btnAddChar) btnAddChar.onclick = () => openModal(-1);
+    
+    const closeModalBtn = document.getElementById('close-modal');
+    if(closeModalBtn) closeModalBtn.onclick = closeModal;
+    
+    const cancelCharBtn = document.getElementById('btn-cancel-char');
+    if(cancelCharBtn) cancelCharBtn.onclick = closeModal;
 
-        try {
-            await DBDocs.saveCharacterBible(currentChannelId, characters);
-            closeModal();
-            renderCharacters();
-            UI.showToast("Đã lưu nhân vật");
-        } catch (e) {
-            UI.showError(e.message);
-        }
-    };
+    const charForm = document.getElementById('char-form');
+    if(charForm) {
+        charForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('char-index').value);
+            const data = {
+                name: document.getElementById('char-name').value,
+                role: document.getElementById('char-role').value,
+                age: document.getElementById('char-age').value,
+                look: document.getElementById('char-look').value,
+                personality: document.getElementById('char-personality').value,
+                note: document.getElementById('char-note').value,
+            };
+
+            if(index === -1) {
+                characters.push(data);
+            } else {
+                characters[index] = data;
+            }
+
+            try {
+                await DBDocs.saveCharacterBible(currentChannelId, characters);
+                closeModal();
+                renderCharacters();
+                UI.showToast("Đã lưu nhân vật");
+            } catch (e) {
+                UI.showError(e.message);
+            }
+        };
+    }
 }
 
 function openModal(index = -1) {
@@ -177,24 +188,31 @@ function openModal(index = -1) {
     
     document.getElementById('char-index').value = index;
     if(index === -1) {
-        title.innerText = "Thêm Nhân Vật";
-        form.reset();
+        if(title) title.innerText = "Thêm Nhân Vật";
+        if(form) form.reset();
     } else {
-        title.innerText = "Sửa Nhân Vật";
+        if(title) title.innerText = "Sửa Nhân Vật";
         const c = characters[index];
-        document.getElementById('char-name').value = c.name;
-        document.getElementById('char-role').value = c.role;
-        document.getElementById('char-age').value = c.age;
-        document.getElementById('char-look').value = c.look;
-        document.getElementById('char-personality').value = c.personality;
-        document.getElementById('char-note').value = c.note;
+        const nameEl = document.getElementById('char-name');
+        if(nameEl) nameEl.value = c.name;
+        const roleEl = document.getElementById('char-role');
+        if(roleEl) roleEl.value = c.role;
+        const ageEl = document.getElementById('char-age');
+        if(ageEl) ageEl.value = c.age;
+        const lookEl = document.getElementById('char-look');
+        if(lookEl) lookEl.value = c.look;
+        const personalityEl = document.getElementById('char-personality');
+        if(personalityEl) personalityEl.value = c.personality;
+        const noteEl = document.getElementById('char-note');
+        if(noteEl) noteEl.value = c.note;
     }
     
-    modal.classList.add('show');
+    if(modal) modal.classList.add('show');
 }
 
 function closeModal() {
-    document.getElementById('char-modal').classList.remove('show');
+    const modal = document.getElementById('char-modal');
+    if(modal) modal.classList.remove('show');
 }
 
 async function deleteChar(index) {

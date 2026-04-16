@@ -110,11 +110,11 @@ function renderScenes() {
     
     if(!scenes || scenes.length === 0) {
         container.innerHTML = '';
-        empty.classList.remove('hidden');
+        if(empty) empty.classList.remove('hidden');
         return;
     }
     
-    empty.classList.add('hidden');
+    if(empty) empty.classList.add('hidden');
     container.innerHTML = scenes.map((s, idx) => `
         <div class="card scene-card">
             <div class="card-body">
@@ -146,7 +146,8 @@ function setupEvents() {
     document.getElementById('btn-gen-scenes').onclick = async () => {
         try {
             UI.setHTML('scenes-container', '<div class="loading-full"><i class="fa-solid fa-wand-magic-sparkles fa-spin text-primary"></i> AI đang viết kịch bản chi tiết từng cảnh... Vui lòng chờ 20-40s.</div>');
-            document.getElementById('scenes-empty').classList.add('hidden');
+            const scenesEmpty = document.getElementById('scenes-empty');
+            if(scenesEmpty) scenesEmpty.classList.add('hidden');
             
             let characterBible = null;
             if(currentChannel.type === 'series') {

@@ -14,34 +14,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnToggle = document.getElementById('btn-toggle-sidebar');
     const btnClose = document.getElementById('btn-close-sidebar');
 
-    btnToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-    });
+    if(btnToggle && sidebar) {
+        btnToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+    }
 
-    btnClose.addEventListener('click', () => {
-        sidebar.classList.remove('open');
-    });
+    if(btnClose && sidebar) {
+        btnClose.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+        });
+    }
 
     // Check user state to display sidebar
     const user = Store.getCurrentUser();
     if(user) {
-        sidebar.classList.remove('hidden');
-        header.classList.remove('hidden');
+        if(sidebar) sidebar.classList.remove('hidden');
+        if(header) header.classList.remove('hidden');
         
         // Show User UI
-        document.getElementById('user-info').classList.remove('hidden');
-        document.getElementById('user-name').textContent = user.displayName || 'Người dùng';
-        if(user.photoURL) document.getElementById('user-avatar').src = user.photoURL;
-        else document.getElementById('user-avatar').src = 'https://ui-avatars.com/api/?name=' + (user.displayName || 'U');
+        const userInfo = document.getElementById('user-info');
+        if(userInfo) {
+            userInfo.classList.remove('hidden');
+            const userName = document.getElementById('user-name');
+            if(userName) userName.textContent = user.displayName || 'Người dùng';
+            const userAvatar = document.getElementById('user-avatar');
+            if(userAvatar) {
+                if(user.photoURL) userAvatar.src = user.photoURL;
+                else userAvatar.src = 'https://ui-avatars.com/api/?name=' + (user.displayName || 'U');
+            }
+        }
     }
 
     // Auth listeners (will link to real Firebase later)
-    document.getElementById('btn-logout').addEventListener('click', () => {
-        // Mock logout
-        Store.remove('current_user');
-        window.location.hash = '#/login';
-        window.location.reload();
-    });
+    const btnLogout = document.getElementById('btn-logout');
+    if(btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            Store.remove('current_user');
+            window.location.hash = '#/login';
+            window.location.reload();
+        });
+    }
 
     // Init router
     window.addEventListener('hashchange', () => Router.navigate());
