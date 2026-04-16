@@ -159,15 +159,15 @@ function renderStrategy() {
     document.getElementById('st-pillars').innerHTML = pillars.map(p => `<li>${p}</li>`).join('');
     
     const videos = currentStrategy.videos || [];
-    const vHtml = videos.map(v => `
+    const vHtml = videos.map((v, idx) => `
         <div class="result-block">
-            <h4>Tập ${v.order}: ${v.title}</h4>
+            <h4>Tập ${v.order || (idx + 1)}: ${v.title}</h4>
             <p class="text-sm mb-2"><strong>Mục tiêu:</strong> ${v.goal}</p>
             <p class="text-sm mb-2"><strong>Tóm tắt:</strong> ${v.summary}</p>
             <p class="text-sm text-primary mb-2"><em><i class="fa-solid fa-quote-left"></i> Hook: ${v.hook}</em></p>
             <p class="text-xs text-gray"><i class="fa-solid fa-bullhorn"></i> CTA: ${v.cta}</p>
             <div class="mt-3">
-                <a href="#/video-detail/${currentChannel.id}/${v.id}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-wand-magic-sparkles"></i> Xem chi tiết & Viết Cảnh</a>
+                <a href="#/video-detail/${currentChannel.id}/${v.id || v.order || idx}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-wand-magic-sparkles"></i> Xem chi tiết & Viết Cảnh</a>
             </div>
         </div>
     `).join('');

@@ -115,7 +115,22 @@ export async function init(params) {
         if(!strategy) throw new Error("Chưa có chiến lược cho kênh này");
         
         currentVideo = strategy.videos.find(v => v.id == currentVideoId);
-        if(!currentVideo) throw new Error("Không tìm thấy video này");
+        
+        // Fallback for old data missing ID or navigation error
+        if(!currentVideo) {
+            // Try matching by order (episode number)
+            currentVideo = strategy.videos.find(v => v.order == currentVideoId);
+            
+            // If still not found and currentVideoId is a number, try by index
+            if(!currentVideo && !isNaN(currentVideoId)) {
+                const idx = parseInt(currentVideoId);
+                if(strategy.videos[idx]) {
+                    currentVideo = strategy.videos[idx];
+                }
+            }
+        }
+
+        if(!currentVideo) throw new Error("Không tìm thấy thông tin video này");
         
         scenes = await DBDocs.getVideoScenes(currentChannelId, currentVideoId) || [];
         

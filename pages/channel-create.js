@@ -85,6 +85,13 @@ export function init() {
         return true;
     };
 
+    const ensureIds = (list, prefix) => {
+        return list.map((item, idx) => ({
+            ...item,
+            id: item.id || `${prefix}_${idx + 1}_${Date.now().toString(36)}`
+        }));
+    };
+
     btnDraft.addEventListener('click', async () => {
         const data = getFormData();
         if(!validate(data)) return;
@@ -112,7 +119,8 @@ export function init() {
             const foundation = await OpenAIService.generateStrategy(data);
             const strategy = { ...foundation };
             delete strategy.characters;
-            const characters = foundation.characters || [];
+            let characters = foundation.characters || [];
+            characters = ensureIds(characters, 'char');
 
             // 2. Loop sinh video theo đợt
             let allVideos = [];
@@ -125,7 +133,8 @@ export function init() {
                 
                 const batchResult = await OpenAIService.generateVideosBatch(data, strategy, characters, allVideos, start, count);
                 if(batchResult && batchResult.videos) {
-                    allVideos = allVideos.concat(batchResult.videos);
+                    const sanitizedBatch = ensureIds(batchResult.videos, 'vid');
+                    allVideos = allVideos.concat(sanitizedBatch);
                 }
             }
 
@@ -169,7 +178,7 @@ export function init() {
                     
                     const strategy = { ...parsedFoundation };
                     delete strategy.characters;
-                    const characters = parsedFoundation.characters || [];
+                    const characters = ensureIds(parsedFoundation.characters || [], 'char');
                     const targetCount = parseInt(data.videoCount) || 5;
                     
                     closeFirst();
@@ -198,7 +207,8 @@ export function init() {
                         return;
                     }
 
-                    allVideos = allVideos.concat(batchResult.videos);
+                    const sanitizedBatch = ensureIds(batchResult.videos, 'vid');
+                    allVideos = allVideos.concat(sanitizedBatch);
                     close();
                     
                     if(allVideos.length < total) {
@@ -208,7 +218,7 @@ export function init() {
                     } else {
                         // Hoàn tất
                         try {
-                            UI.injectLoader('form-card', 'Đang thiết lập kênh và lưu 40 tập phim...');
+                            UI.injectLoader('form-card', 'Đang thiết lập kênh và lưu tập phim...');
                             strategy.videos = allVideos;
                             const id = await DBDocs.createChannel(data);
                             await DBDocs.saveStrategy(id, strategy);

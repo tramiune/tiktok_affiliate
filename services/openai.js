@@ -60,7 +60,7 @@ YÊU CẦU JSON:
 - "pillars": [danh sách 3 mảng nội dung chính],
 - "toneOfVoice": (giọng điệu),
 - "visualStyle": (phong cách hình ảnh),
-- "characters": [Danh sách 3-5 nhân vật chính với: name, role, age, appearance_dna (Ngoại hình tả bằng TIẾNG ANH CHI TIẾT), personality, note]
+- "characters": [Danh sách 3-5 nhân vật chính với: id (chuỗi duy nhất, ví dụ: char_1), name, role, age, appearance_dna (Ngoại hình tả bằng TIẾNG ANH CHI TIẾT), personality, note]
 `;
         const userMessage = `
 Phân tích và lên chiến lược cho kênh TikTok sau:
@@ -87,6 +87,7 @@ QUY TẮC GIỮ CHÂN (RETENTION):
 
 YÊU CẦU JSON:
 {"videos": [{ 
+    "id": "chuỗi duy nhất vd: vid_1",
     "order", "title", "goal", "summary", 
     "hook": "Câu mở đầu gây sốc hoặc tò mò", 
     "cliffhanger": "Tình tiết dở dang ở cuối tập để ép người xem xem tập sau",
@@ -176,7 +177,7 @@ QUY TẮC QUAN TRỌNG NHẤT - APPEARANCE DNA:
 Mục tiêu là mô tả sao cho AI Video chỉ cần đọc đoạn này là vẽ ra đúng 1 người duy nhất.
 
 CẤU TRÚC JSON:
-{"characters": [{ "name", "role", "age", "personality", "appearance_dna", "note" }]}
+{"characters": [{ "id", "name", "role", "age", "personality", "appearance_dna", "note" }]}
 `;
 
         const userMessage = `
