@@ -50,9 +50,12 @@ export const template = `
                 </div>
             </div>
             
-            <div class="mt-6 flex justify-between">
+            <div class="mt-6 flex justify-between gap-2 overflow-x-auto">
                 <button id="btn-save-draft" class="btn btn-secondary"><i class="fa-solid fa-floppy-disk"></i> Lưu Nháp</button>
-                <button id="btn-gen-ai" class="btn btn-primary"><i class="fa-solid fa-wand-magic-sparkles"></i> Tạo Chiến Lược bằng AI</button>
+                <div class="flex gap-2">
+                    <button id="btn-gen-manual" class="btn btn-secondary"><i class="fa-regular fa-comment-dots"></i> Dùng ChatGPT thủ công</button>
+                    <button id="btn-gen-ai" class="btn btn-primary"><i class="fa-solid fa-wand-magic-sparkles"></i> Tạo Chiến Lược AI</button>
+                </div>
             </div>
         </div>
     </div>
@@ -62,6 +65,7 @@ export const template = `
 export function init() {
     const btnDraft = document.getElementById('btn-save-draft');
     const btnGen = document.getElementById('btn-gen-ai');
+    const btnGenManual = document.getElementById('btn-gen-manual');
 
     const getFormData = () => ({
         name: UI.getValue('f-name'),
@@ -121,5 +125,31 @@ export function init() {
         } finally {
             UI.removeLoader('form-card');
         }
+    });
+
+    btnGenManual.addEventListener('click', () => {
+        const data = getFormData();
+        if(!validate(data)) return;
+
+        const p = OpenAIService.buildStrategyPrompt(data);
+        const combined = p.systemPrompt + "\n\n" + p.userMessage;
+
+        UI.showManualAIModal({
+            title: "Lập Chiến Lược qua ChatGPT",
+            promptText: combined,
+            onConfirm: async (parsedData, close) => {
+                try {
+                    UI.injectLoader('form-card', 'Đang lưu dữ liệu...');
+                    const id = await DBDocs.createChannel(data);
+                    await DBDocs.saveStrategy(id, parsedData);
+                    close();
+                    UI.showSuccess("Đã lưu chiến lược từ ChatGPT!");
+                    window.location.hash = '#/channel/' + id;
+                } catch (e) {
+                    UI.showError("Lỗi lưu dữ liệu: " + e.message);
+                    UI.removeLoader('form-card');
+                }
+            }
+        });
     });
 }
