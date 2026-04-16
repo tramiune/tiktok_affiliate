@@ -174,7 +174,9 @@ function renderScenes() {
     const batchCenter = document.getElementById('batch-center');
     const checklistContainer = document.getElementById('checklist-container');
     
-    if(!scenes || scenes.length === 0) {
+    const sceneList = Array.isArray(scenes) ? scenes : (scenes.scenes || []);
+
+    if(sceneList.length === 0) {
         container.innerHTML = '';
         if(empty) empty.classList.remove('hidden');
         if(batchCenter) batchCenter.classList.add('hidden');
@@ -183,8 +185,6 @@ function renderScenes() {
     
     if(empty) empty.classList.add('hidden');
     if(batchCenter) batchCenter.classList.remove('hidden');
-
-    const sceneList = Array.isArray(scenes) ? scenes : (scenes.scenes || []);
 
     // Render Checklist in Batch Center
     if(checklistContainer) {
@@ -220,7 +220,7 @@ function renderScenes() {
                 <div class="grid-2">
                     <div>
                         <p class="text-xs text-gray uppercase mb-1">Hành động / Bối cảnh:</p>
-                        <p class="text-sm mb-3"><strong>${(s.characters || '').replace(/undefined/g, '')}</strong>: ${s.action}</p>
+                        <p class="text-sm mb-3"><strong>${String(s.characters || '').replace(/undefined/g, '')}</strong>: ${s.action}</p>
                         <p class="text-xs text-gray italic"><i class="fa-solid fa-location-dot"></i> ${s.setting}</p>
                         ${!s.veo3_prompt ? '<p class="text-xs text-danger"><i class="fa-solid fa-circle-exclamation"></i> Thiếu Video Prompt. Vui lòng sinh lại.</p>' : ''}
                     </div>
