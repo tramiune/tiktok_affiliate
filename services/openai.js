@@ -127,7 +127,7 @@ Phân tích và tự động tạo các nhân vật chính cho Series phim ngắ
 - Visual Style: ${strategyData.visualStyle || ''}
 - Pillars (Nội dung chính): ${(strategyData.pillars||[]).join(', ')}
 
-Hãy tạo cho tôi 4-5 nhân vật cốt lõi.
+Hãy tạo cho tôi 3-5 nhân vật cốt lõi.
 `;
         return { systemPrompt, userMessage };
     },
