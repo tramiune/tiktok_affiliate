@@ -11,7 +11,8 @@ export const template = `
             <p class="text-sm text-gray" id="sc-meta">Video: ...</p>
         </div>
         <div class="flex gap-2">
-            <button class="btn btn-primary" id="btn-copy-prompt"><i class="fa-solid fa-copy"></i> Sao chép câu lệnh VEO 3</button>
+            <button class="btn btn-secondary" id="btn-regen-prompt"><i class="fa-solid fa-wand-magic-sparkles text-primary"></i> Viết lại Prompt AI</button>
+            <button class="btn btn-primary" id="btn-copy-prompt"><i class="fa-solid fa-copy"></i> Sao chép</button>
             <button class="btn btn-secondary" id="btn-back-vid"><i class="fa-solid fa-arrow-left"></i> Về Video</button>
         </div>
     </div>
@@ -157,6 +158,36 @@ function setupEvents() {
             UI.showToast("Đã lưu thay đổi cảnh quay");
         } catch (e) {
             UI.showError(e.message);
+        }
+    };
+
+    document.getElementById('btn-regen-prompt').onclick = async () => {
+        try {
+            const btn = document.getElementById('btn-regen-prompt');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang viết...';
+            
+            // Build current scene data from inputs
+            const currentData = {
+                action: document.getElementById('sc-action').value,
+                setting: document.getElementById('sc-setting').value,
+                characters: scene.characters,
+                emotion: document.getElementById('sc-emotion').value,
+                voice_over: document.getElementById('sc-voice').value
+            };
+
+            const strategy = await DBDocs.getStrategy(currentChannelId);
+            const video = strategy.videos.find(v => v.id == currentVideoId);
+            
+            const newPrompt = await OpenAIService.regenerateSingleScenePrompt(currentData, video.title);
+            document.getElementById('sc-veo-prompt').value = newPrompt;
+            
+            UI.showToast("Đã sinh Prompt mới thành công!");
+        } catch (e) {
+            UI.showError("Lỗi: " + e.message);
+        } finally {
+            document.getElementById('btn-regen-prompt').disabled = false;
+            document.getElementById('btn-regen-prompt').innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-primary"></i> Viết lại Prompt AI';
         }
     };
 

@@ -129,6 +129,7 @@ YÊU CẦU SỐ 2 - VIDEO PROMPT (VEO 3.1):
 Thuộc tính "veo3_prompt" phải mô tả cực kỳ chi tiết cảnh quay bằng TIẾNG ANH (từ 80 - 150 từ).
 - Nếu có nhân vật, phải chèn NGUYÊN VĂN "Ngoại hình" (Appearance DNA) của họ vào.
 - Nếu không có nhân vật, phải mô tả bối cảnh, ánh sáng, góc máy và chuyển động một cách sống động.
+- CUỐI PROMPT: Bắt đầu bằng chữ "Dialogue:" và chèn phần lời thoại (voice_over) của cảnh đó nếu có.
 - Luôn đảm bảo field này có nội dung chất lượng cao.
 
 YÊU CẦU SỐ 3 - NÚT THẮT DỞ DANG (CLIFFHANGER):
@@ -229,13 +230,37 @@ Dàn nhân vật cần thiết cho phong cách này là gì? Hãy phóng tác ch
         
         // Normalization: Đảm bảo các field quan trọng luôn tồn tại
         if (result && result.scenes) {
-            result.scenes = result.scenes.map(s => ({
-                ...s,
-                veo3_prompt: s.veo3_prompt || s.video_prompt || s.prompt || s.prompt_video || "",
-                characters: String(s.characters || "").replace(/undefined/g, "")
-            }));
+            result.scenes = result.scenes.map(s => {
+                let p = s.veo3_prompt || "";
+                if (!p) {
+                    // Tìm bất kỳ key nào chứa chữ "prompt" (không phân biệt hoa thường)
+                    const keys = Object.keys(s);
+                    const promptKey = keys.find(k => k.toLowerCase().includes('prompt'));
+                    if (promptKey) p = s[promptKey];
+                }
+                return {
+                    ...s,
+                    veo3_prompt: p,
+                    characters: String(s.characters || "").replace(/undefined/g, "")
+                };
+            });
         }
         return result;
+    },
+
+    /**
+     * 4. Sinh lại duy nhất Prompt cho 1 cảnh quay (nếu bị thiếu)
+     */
+    async regenerateSingleScenePrompt(sceneData, videoTitle) {
+        const systemPrompt = `Bạn là chuyên gia viết Prompt cho AI Video (VEO 3.1). 
+Dựa vào mô tả cảnh quay, hãy viết 1 câu Prompt TIẾNG ANH (80-150 từ) cực kỳ chi tiết.
+BẮT BUỘC CUỐI PROMPT: Phải có phần lời thoại định dạng: "Dialogue: [nội dung lời thoại]".
+Chỉ trả về JSON: {"prompt": "nội dung prompt..."}`;
+        
+        const userMessage = `Video: ${videoTitle}\nCảnh quay: ${sceneData.action}\nBối cảnh: ${sceneData.setting}\nNhân vật: ${sceneData.characters}\nCảm xúc: ${sceneData.emotion}\nLời thoại: ${sceneData.voice_over || ''}`;
+        
+        const result = await this.callAPI(systemPrompt, userMessage);
+        return result.prompt || "";
     },
 
     /**
