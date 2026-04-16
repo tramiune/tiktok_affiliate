@@ -83,8 +83,10 @@ export async function init(params) {
         const strategy = await DBDocs.getStrategy(currentChannelId);
         const video = strategy.videos.find(v => v.id == currentVideoId);
         
-        scenes = await DBDocs.getVideoScenes(currentChannelId, currentVideoId);
-        scene = scenes[currentSceneId];
+        const rawScenes = await DBDocs.getVideoScenes(currentChannelId, currentVideoId);
+        scenes = Array.isArray(rawScenes) ? { scenes: rawScenes } : (rawScenes || { scenes: [] });
+        
+        scene = scenes.scenes[currentSceneId];
         
         if(!scene) throw new Error("Không tìm thấy cảnh quay này");
         
@@ -126,7 +128,7 @@ function setupEvents() {
         scene.setting = document.getElementById('sc-setting').value;
         scene.camera_angle = document.getElementById('sc-camera').value;
         
-        scenes[currentSceneId] = scene;
+        scenes.scenes[currentSceneId] = scene;
         
         try {
             await DBDocs.saveVideoScenes(currentChannelId, currentVideoId, scenes);

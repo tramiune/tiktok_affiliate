@@ -132,7 +132,8 @@ export async function init(params) {
 
         if(!currentVideo) throw new Error("Không tìm thấy thông tin video này");
         
-        scenes = await DBDocs.getVideoScenes(currentChannelId, currentVideoId) || [];
+        const rawScenes = await DBDocs.getVideoScenes(currentChannelId, currentVideoId) || [];
+        scenes = Array.isArray(rawScenes) ? { scenes: rawScenes } : rawScenes;
         
         // Router handles template injection
         renderHeader();
@@ -288,12 +289,14 @@ function setupEvents() {
         const checkInput = e.target.closest('.scene-check');
         if(checkInput) {
             const idx = checkInput.getAttribute('data-idx');
-            scenes[idx].isGenerated = checkInput.checked;
-            try {
-                await DBDocs.saveVideoScenes(currentChannelId, currentVideoId, scenes);
-                renderScenes(); // Re-render to update UI (line-through, etc.)
-            } catch (err) {
-                UI.showError("Lỗi lưu trạng thái: " + err.message);
+            if(scenes && scenes.scenes) {
+                scenes.scenes[idx].isGenerated = checkInput.checked;
+                try {
+                    await DBDocs.saveVideoScenes(currentChannelId, currentVideoId, scenes);
+                    renderScenes(); // Re-render to update UI (line-through, etc.)
+                } catch (err) {
+                    UI.showError("Lỗi lưu trạng thái: " + err.message);
+                }
             }
             return;
         }
