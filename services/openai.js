@@ -54,6 +54,7 @@ QUY TẮC CỐT LÕI:
 1. AN TOÀN BẢN QUYỀN (COPYRIGHT): Tuyệt đối không sử dụng tên thật của người nổi tiếng, không mô phỏng quá giống các bộ phim có sẵn. Mọi nhân vật và cốt truyện phải là sáng tạo mới hoàn toàn.
 2. CHIẾN THUẬT SERIES: Phải xác định một "Bí ẩn lớn" (The Big Mystery) hoặc "Mục tiêu dài hạn" kéo dài xuyên suốt các tập để tạo sự tò mò.
 3. GIỮ CHÂN: Luôn ưu tiên yếu tố kịch tính, bất ngờ và nhịp độ nhanh.
+4. PHONG CÁCH HÌNH ẢNH MẶC ĐỊNH: Hoạt hình 3D chất lượng cao (High-end 3D Animation, Pixar/Disney style). Mọi mô tả hình ảnh phải tuân theo phong cách này.
 
 YÊU CẦU JSON:
 - Trả về CHUẨN JSON.
@@ -130,6 +131,7 @@ BẮT BUỘC phân rã kịch bản này ra thành 8 ĐẾN 12 CẢNH QUAY (Scen
 
 YÊU CẦU SỐ 2 - VIDEO PROMPT (VEO 3.1):
 Thuộc tính "veo3_prompt" phải mô tả cực kỳ chi tiết cảnh quay bằng TIẾNG ANH (từ 80 - 150 từ). 
+- PHONG CÁCH: 3D Animation, vibrant colors, Pixar style, cinematic lighting.
 - Nếu có nhân vật, phải chèn NGUYÊN VĂN "Ngoại hình" (Appearance DNA) của họ vào.
 - Nếu không có nhân vật, phải mô tả bối cảnh, ánh sáng, góc máy và chuyển động một cách sống động.
 - CUỐI PROMPT: Bắt đầu bằng chữ "Dialogue:" và chèn phần lời thoại (voice_over) của cảnh đó nếu có.
@@ -189,12 +191,13 @@ Nhiệm vụ của bạn là dựa trên chiến lược kênh để phóng tác
 QUY TẮC QUAN TRỌNG NHẤT - APPEARANCE DNA:
 Đối với mỗi nhân vật, phần "appearance_dna" (ngoại hình) phải được viết bằng TIẾNG ANH cực kỳ chi tiết, bao gồm:
 1. Chủng tộc và tuổi cụ thể (ví dụ: Vietnamese woman, late 50s).
-2. Cấu trúc khuôn mặt (ví dụ: oval face, high cheekbones, deep-set eyes, thin lips).
-3. Đặc điểm tóc và màu sắc (ví dụ: salt-and-pepper hair tied in a tight bun).
-4. Trang phục mặc định (luôn mặc bộ đồ này để giữ đồng nhất).
-5. MỘT PHỤ KIỆN DUY NHẤT (ví dụ: một chiếc trâm cài tóc bằng bạc, hoặc nốt ruồi ở cằm).
+2. TẠO HÌNH HOẠT HÌNH: Mô tả nhân vật theo phong cách 3D Animation (eyes slightly larger, expressive features, vibrant textures).
+3. Cấu trúc khuôn mặt (ví dụ: oval face, high cheekbones, deep-set eyes, thin lips).
+4. Đặc điểm tóc và màu sắc (ví dụ: salt-and-pepper hair tied in a tight bun).
+5. Trang phục mặc định (luôn mặc bộ đồ này để giữ đồng nhất).
+6. MỘT PHỤ KIỆN DUY NHẤT (ví dụ: một chiếc trâm cài tóc bằng bạc, hoặc nốt ruồi ở cằm).
 
-Mục tiêu là mô tả sao cho AI Video chỉ cần đọc đoạn này là vẽ ra đúng 1 người duy nhất.
+Mục tiêu là mô tả sao cho AI Video chỉ cần đọc đoạn này là vẽ ra đúng 1 người duy nhất theo phong cách HOẠT HÌNH.
 
 CẤU TRÚC JSON:
 {"characters": [{ "id", "name", "role", "age", "personality", "appearance_dna", "note" }]}
@@ -258,6 +261,7 @@ Dàn nhân vật cần thiết cho phong cách này là gì? Hãy phóng tác ch
      */
     async regenerateSingleScenePrompt(sceneData, videoTitle) {
         const systemPrompt = `Bạn là chuyên gia viết Prompt cho AI Video (VEO 3.1). 
+Phong cách: HOẠT HÌNH 3D (High-end 3D Animation, Pixar/Disney style).
 Dựa vào mô tả cảnh quay, hãy viết 1 câu Prompt TIẾNG ANH (80-150 từ) cực kỳ chi tiết.
 BẮT BUỘC CUỐI PROMPT: Phải có phần lời thoại định dạng: "Dialogue: [nội dung lời thoại]".
 Trả về kết quả dưới định dạng JSON: {"prompt": "nội dung prompt..."}`;
