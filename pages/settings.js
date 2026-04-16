@@ -28,6 +28,22 @@ export const template = `
             </div>
         </div>
     </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Cấu hình Video Generator</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label">Link Tool Tạo Video (Mặc định: Veo 3 / VideoFX)</label>
+                <input type="text" id="generator-url" class="form-control" placeholder="https://videofx.google.com/">
+                <div class="form-help">
+                    Ứng dụng sẽ tự động mở trang web này khi bạn nhấn nút "Copy Prompt". Bạn có thể đổi thành link Kling AI, Luma... nếu muốn.
+                </div>
+            </div>
+            <button id="btn-save-url" class="btn btn-secondary btn-sm">Lưu Link Tool</button>
+        </div>
+    </div>
     
     <div class="card">
         <div class="card-header">
@@ -45,9 +61,12 @@ export function init() {
     const inputKey = document.getElementById('api-key');
     const btnToggle = document.getElementById('btn-toggle-visibility');
     const btnSave = document.getElementById('btn-save');
+    const inputUrl = document.getElementById('generator-url');
+    const btnSaveUrl = document.getElementById('btn-save-url');
 
-    // Load saved key
+    // Load saved settings
     inputKey.value = Store.getOpenAIKey();
+    inputUrl.value = Store.getGeneratorUrl();
 
     btnToggle.addEventListener('click', () => {
         if (inputKey.type === 'password') {
@@ -72,5 +91,15 @@ export function init() {
         
         Store.setOpenAIKey(key);
         UI.showSuccess("Đã lưu API Key thành công!");
+    });
+
+    btnSaveUrl.addEventListener('click', () => {
+        const url = inputUrl.value.trim();
+        if(!url) {
+            UI.showError("Vui lòng nhập link tool!");
+            return;
+        }
+        Store.setGeneratorUrl(url);
+        UI.showSuccess("Đã lưu Link Tool thành công!");
     });
 }

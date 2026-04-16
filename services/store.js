@@ -52,5 +52,16 @@ export const Store = {
   
   getCurrentUser() {
     return this.get('current_user', null);
+  },
+
+  /**
+   * Quản lý Link Video Generator (Veo, Kling, Luma...)
+   */
+  getGeneratorUrl() {
+    return this.get('generator_url', 'https://videofx.google.com/');
+  },
+
+  setGeneratorUrl(url) {
+    return this.set('generator_url', url);
   }
 };

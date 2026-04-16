@@ -1,5 +1,6 @@
 import { DBDocs } from '../services/firestore.js';
 import { OpenAIService } from '../services/openai.js';
+import { Store } from '../services/store.js';
 import { UI } from '../assets/js/ui.js';
 
 export const title = 'Chi tiết Video';
@@ -229,7 +230,12 @@ function setupEvents() {
             const idx = copyBtn.getAttribute('data-idx');
             const scene = scenes[idx];
             if(scene && scene.veo3_prompt) {
-                UI.copyToClipboard(scene.veo3_prompt, `Đã copy Prompt cảnh ${parseInt(idx)+1}`);
+                // 1. Copy to clipboard
+                await UI.copyToClipboard(scene.veo3_prompt, `Đã copy Prompt cảnh ${parseInt(idx)+1}`);
+                
+                // 2. Open tool URL
+                const toolUrl = Store.getGeneratorUrl();
+                window.open(toolUrl, '_blank');
             }
             return;
         }
