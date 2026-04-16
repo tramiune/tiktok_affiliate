@@ -76,7 +76,7 @@ Bạn là nhà biên kịch và đạo diễn quay dựng video ngắn.
 Dựa vào kịch bản, hãy viết chi tiết cảnh quay làm input cho hệ thống video AI (VEO 3, Kling).
 
 YÊU CẦU SỐ 1 - ĐỘ DÀI VÀ SỐ LƯỢNG CẢNH:
-BẮT BUỘC phải phân rã kịch bản này ra thành mạch truyện dài từ 10 ĐẾN 20 CẢNH QUAY (Scenes) liên tục, logic và tiếp nối nhau để video có mạch truyện chi tiết.
+BẮT BUỘC phải phân rã kịch bản này ra thành mạch truyện dài từ 15 ĐẾN 20 CẢNH QUAY (Scenes) liên tục, logic và tiếp nối nhau để video có mạch truyện chi tiết.
 
 YÊU CẦU SỐ 2 - ĐỒNG NHẤT NHÂN VẬT (CONSISTENCY):
 Trong "veo3_prompt" (prompt tiếng Anh để vẽ video), khi nhân vật xuất hiện, bạn BẮT BUỘC COPY Y NGUYÊN dòng "Ngoại hình (look)" của nhân vật đó từ Character Bible và chèn vào prompt. KHÔNG được đổi từ, KHÔNG được viết lại. 
@@ -127,7 +127,7 @@ Phân tích và tự động tạo các nhân vật chính cho Series phim ngắ
 - Visual Style: ${strategyData.visualStyle || ''}
 - Pillars (Nội dung chính): ${(strategyData.pillars||[]).join(', ')}
 
-Hãy tạo cho tôi 2-3 nhân vật cốt lõi.
+Hãy tạo cho tôi 4-5 nhân vật cốt lõi.
 `;
         return { systemPrompt, userMessage };
     },

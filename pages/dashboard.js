@@ -66,10 +66,13 @@ export async function init() {
             </div>
         `).join('');
 
-        // Setup Edit/Delete events
-        document.querySelectorAll('.delete-channel').forEach(btn => {
-            btn.onclick = () => {
-                const cid = btn.getAttribute('data-id');
+        // Setup Edit/Delete events via Event Delegation to prevent mobile detached DOM issues
+        listContainer.onclick = (e) => {
+            const delBtn = e.target.closest('.delete-channel');
+            if(delBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const cid = delBtn.getAttribute('data-id');
                 const channel = channels.find(x => x.id === cid);
                 UI.showModal({
                     title: "Xóa Dự Án",
@@ -81,17 +84,19 @@ export async function init() {
                             close();
                             init(); // Reload list
                             UI.showToast("Đã xóa kênh thành công.");
-                        } catch(e) {
-                            UI.showError(e.message);
+                        } catch(err) {
+                            UI.showError(err.message);
                         }
                     }
                 });
-            };
-        });
+                return;
+            }
 
-        document.querySelectorAll('.edit-channel').forEach(btn => {
-            btn.onclick = () => {
-                const cid = btn.getAttribute('data-id');
+            const editBtn = e.target.closest('.edit-channel');
+            if(editBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const cid = editBtn.getAttribute('data-id');
                 const channel = channels.find(x => x.id === cid);
                 UI.showModal({
                     title: "Sửa Kênh",
@@ -127,13 +132,14 @@ export async function init() {
                             close();
                             init();
                             UI.showToast("Cập nhật kênh thành công.");
-                        } catch(e) {
-                            UI.showError(e.message);
+                        } catch(err) {
+                            UI.showError(err.message);
                         }
                     }
                 });
-            };
-        });
+                return;
+            }
+        };
 
     } catch(e) {
         console.error(e);
