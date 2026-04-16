@@ -40,10 +40,23 @@ export const template = `
         </div>
     </div>
     
-    <div class="card mb-6">
-        <div class="card-header"><h3><i class="fa-solid fa-align-left text-primary"></i> Tóm tắt Nội dung</h3></div>
-        <div class="card-body">
-            <p id="vid-summary"></p>
+    <div class="grid-2 mb-6">
+        <div class="card bg-secondary-light">
+            <div class="card-header"><h3><i class="fa-solid fa-align-left text-primary"></i> Tóm tắt Nội dung</h3></div>
+            <div class="card-body">
+                <p id="vid-summary" class="text-sm"></p>
+            </div>
+        </div>
+
+        <div id="retention-card" class="card border-warning hidden">
+            <div class="card-header"><h3><i class="fa-solid fa-bolt text-warning"></i> Nút thắt & Bản quyền</h3></div>
+            <div class="card-body">
+                <p class="text-sm mb-2"><strong>Cliffhanger (Tập này):</strong> <span id="vid-cliffhanger" class="text-secondary font-medium"></span></p>
+                <p class="text-sm mb-2"><strong>Loại nhạc gợi ý:</strong> <span id="vid-music" class="badge badge-gray"></span></p>
+                <hr class="my-2">
+                <p class="text-xs text-gray"><i class="fa-solid fa-shield-halved"></i> <strong>Lời khuyên bản quyền:</strong> <span id="vid-copyright">Đang tải...</span></p>
+                <p class="text-xs text-blue-600 mt-1"><i class="fa-solid fa-clapperboard"></i> <strong>Mẹo dựng phim:</strong> <span id="vid-editor-tip">Đang tải...</span></p>
+            </div>
         </div>
     </div>
 
@@ -122,8 +135,24 @@ function renderHeader() {
     document.getElementById('vid-meta').textContent = `Kênh: ${currentChannel.name} | Tập: ${currentVideo.order || 'Chưa rõ'}`;
     document.getElementById('vid-goal').textContent = currentVideo.goal;
     document.getElementById('vid-hook').textContent = currentVideo.hook;
-    document.getElementById('vid-cta').textContent = currentVideo.cta;
+    document.getElementById('vid-cta').textContent = currentVideo.cta || 'Chưa có CTA';
     document.getElementById('vid-summary').textContent = currentVideo.summary;
+
+    const retentionCard = document.getElementById('retention-card');
+    if(currentVideo.cliffhanger) {
+        retentionCard.classList.remove('hidden');
+        document.getElementById('vid-cliffhanger').textContent = currentVideo.cliffhanger;
+        document.getElementById('vid-music').textContent = currentVideo.music_vibe || 'Nhạc thương mại TikTok';
+    }
+
+    // Advice from Scene Generation (stored in scenes collection)
+    if(scenes && scenes.copyright_advice) {
+        document.getElementById('vid-copyright').textContent = scenes.copyright_advice;
+        document.getElementById('vid-editor-tip').textContent = scenes.direction_for_editor;
+    } else {
+        document.getElementById('vid-copyright').textContent = "Bấm 'Sinh cảnh quay' để AI gợi ý.";
+        document.getElementById('vid-editor-tip').textContent = "Bấm 'Sinh cảnh quay' để AI gợi ý.";
+    }
 }
 
 function renderScenes() {
@@ -142,9 +171,11 @@ function renderScenes() {
     if(empty) empty.classList.add('hidden');
     if(batchCenter) batchCenter.classList.remove('hidden');
 
+    const sceneList = Array.isArray(scenes) ? scenes : (scenes.scenes || []);
+
     // Render Checklist in Batch Center
     if(checklistContainer) {
-        checklistContainer.innerHTML = scenes.map((s, idx) => `
+        checklistContainer.innerHTML = sceneList.map((s, idx) => `
             <div class="flex items-center justify-between p-2 bg-white rounded border border-gray-100 hover:bg-gray-50">
                 <div class="flex items-center gap-3">
                     <input type="checkbox" class="scene-check" data-idx="${idx}" ${s.isGenerated ? 'checked' : ''}>
@@ -158,7 +189,7 @@ function renderScenes() {
     }
     
     // Render Main Storyboard
-    container.innerHTML = scenes.map((s, idx) => `
+    container.innerHTML = sceneList.map((s, idx) => `
         <div class="card scene-card ${s.isGenerated ? 'opacity-75 bg-gray-50' : ''}">
             <div class="card-body">
                 <div class="flex justify-between items-center mb-3">
@@ -267,8 +298,19 @@ function setupEvents() {
             
             const result = await OpenAIService.generateVideoScenes(currentVideo, currentChannel, characterBible);
             if(result && result.scenes) {
-                scenes = result.scenes;
-                await DBDocs.saveVideoScenes(currentChannelId, currentVideoId, scenes);
+                // Save both scenes and metadata (advice)
+                const dataToSave = {
+                    scenes: result.scenes,
+                    copyright_advice: result.copyright_advice || '',
+                    direction_for_editor: result.direction_for_editor || ''
+                };
+                
+                await DBDocs.saveVideoScenes(currentChannelId, currentVideoId, dataToSave);
+                
+                // Re-fetch or local update
+                scenes = dataToSave;
+                
+                renderHeader(); // Refresh advice in header
                 renderScenes();
                 UI.showToast("Đã sinh kịch bản cảnh quay thành công!");
             } else {
@@ -303,8 +345,16 @@ function setupEvents() {
                     onConfirm: async (parsedData, close) => {
                         try {
                             if(parsedData && parsedData.scenes) {
-                                scenes = parsedData.scenes;
-                                await DBDocs.saveVideoScenes(currentChannelId, currentVideoId, scenes);
+                                // Save both scenes and metadata
+                                const dataToSave = {
+                                    scenes: parsedData.scenes,
+                                    copyright_advice: parsedData.copyright_advice || '',
+                                    direction_for_editor: parsedData.direction_for_editor || ''
+                                };
+                                
+                                await DBDocs.saveVideoScenes(currentChannelId, currentVideoId, dataToSave);
+                                
+                                scenes = dataToSave;
                                 renderHeader();
                                 renderScenes();
                                 setupEvents();
