@@ -137,12 +137,23 @@ Cảnh cuối cùng (Scene 15-20) PHẢI thực hiện đúng phần "cliffhange
 YÊU CẦU SỐ 4 - AN TOÀN BẢN QUYỀN:
 Tuyệt đối không sử dụng tên thật, bài hát có bản quyền hay thương hiệu lớn trong kịch bản.
 
-CẤU TRÚC JSON DUY NHẤT TRẢ VỀ:
 {
-  "scenes": [{ "scene_number", "goal", "setting", "characters", "action", "emotion", "camera_angle", "lighting", "voice_over", "veo3_prompt" }],
-  "copyright_advice": "Lời khuyên chọn nhạc không dính bản quyền từ TikTok Commercial Library",
-  "direction_for_editor": "Mẹo dựng phim để tăng tương tác ở tập phim này (ví dụ: dùng hiệu ứng zoom, cắt nhanh...)"
+  "scenes": [{ 
+    "scene_number", 
+    "goal", 
+    "setting", 
+    "characters", 
+    "action", 
+    "emotion", 
+    "camera_angle", 
+    "lighting", 
+    "voice_over", 
+    "veo3_prompt" 
+  }],
+  "copyright_advice": "...",
+  "direction_for_editor": "..."
 }
+BẮT BUỘC: Không bao giờ bỏ trống "veo3_prompt". Bắt đầu prompt bằng mô tả nhân vật (nếu có) sau đó đến hành động và bối cảnh.
 `;
 
         let bibleStr = '';
@@ -214,7 +225,17 @@ Dàn nhân vật cần thiết cho phong cách này là gì? Hãy phóng tác ch
      */
     async generateVideoScenes(videoData, channelContext, characterBible = null) {
         const p = this.buildVideoScenesPrompt(videoData, channelContext, characterBible);
-        return this.callAPI(p.systemPrompt, p.userMessage);
+        const result = await this.callAPI(p.systemPrompt, p.userMessage);
+        
+        // Normalization: Đảm bảo các field quan trọng luôn tồn tại
+        if (result && result.scenes) {
+            result.scenes = result.scenes.map(s => ({
+                ...s,
+                veo3_prompt: s.veo3_prompt || s.video_prompt || s.prompt || s.prompt_video || "",
+                characters: String(s.characters || "").replace(/undefined/g, "")
+            }));
+        }
+        return result;
     },
 
     /**

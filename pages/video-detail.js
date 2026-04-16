@@ -362,9 +362,16 @@ function setupEvents() {
                     onConfirm: async (parsedData, close) => {
                         try {
                             if(parsedData && parsedData.scenes) {
+                                // Normalization before saving
+                                const normalizedScenes = parsedData.scenes.map(s => ({
+                                    ...s,
+                                    veo3_prompt: s.veo3_prompt || s.video_prompt || s.prompt || s.prompt_video || "",
+                                    characters: String(s.characters || "").replace(/undefined/g, "")
+                                }));
+
                                 // Save both scenes and metadata
                                 const dataToSave = {
-                                    scenes: parsedData.scenes,
+                                    scenes: normalizedScenes,
                                     copyright_advice: parsedData.copyright_advice || '',
                                     direction_for_editor: parsedData.direction_for_editor || ''
                                 };
