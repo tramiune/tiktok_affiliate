@@ -39,10 +39,14 @@ export const UI = {
   // Modals
   showModal({ title, bodyHTML, onConfirm, showCancel = true, confirmText = 'Xác nhận' }) {
     const overlay = document.getElementById('modal-container');
+    const modal = overlay?.querySelector('.modal');
     const titleEl = document.getElementById('modal-title');
     const bodyEl = document.getElementById('modal-body');
     const btnCancel = document.getElementById('modal-cancel');
     const btnConfirm = document.getElementById('modal-confirm');
+    const btnClose = document.getElementById('modal-close');
+
+    if (!overlay || !modal) return;
 
     titleEl.textContent = title;
     bodyEl.innerHTML = bodyHTML;
@@ -55,7 +59,8 @@ export const UI = {
     btnConfirm.parentNode.replaceChild(newBtnConfirm, btnConfirm);
 
     const closeModal = () => {
-      if (overlay) overlay.classList.add('hidden');
+      modal.classList.remove('show');
+      setTimeout(() => overlay.classList.add('hidden'), 200);
     };
 
     newBtnConfirm.addEventListener('click', () => {
@@ -63,15 +68,26 @@ export const UI = {
       else closeModal();
     });
 
-    if (overlay) overlay.classList.remove('hidden');
+    // Wire up close and cancel
+    btnCancel.onclick = closeModal;
+    if (btnClose) btnClose.onclick = closeModal;
+
+    overlay.classList.remove('hidden');
+    // Force a reflow to ensure transition works
+    void modal.offsetWidth;
+    modal.classList.add('show');
   },
 
   showManualAIModal({ title, promptText, onConfirm }) {
     const overlay = document.getElementById('modal-container');
+    const modal = overlay?.querySelector('.modal');
     const titleEl = document.getElementById('modal-title');
     const bodyEl = document.getElementById('modal-body');
     const btnCancel = document.getElementById('modal-cancel');
     const btnConfirm = document.getElementById('modal-confirm');
+    const btnClose = document.getElementById('modal-close');
+
+    if (!overlay || !modal) return;
 
     titleEl.textContent = title;
     
@@ -110,7 +126,8 @@ export const UI = {
     btnConfirm.parentNode.replaceChild(newBtnConfirm, btnConfirm);
 
     const closeModal = () => {
-      if (overlay) overlay.classList.add('hidden');
+      modal.classList.remove('show');
+      setTimeout(() => overlay.classList.add('hidden'), 200);
     };
 
     newBtnConfirm.addEventListener('click', () => {
@@ -135,9 +152,12 @@ export const UI = {
     });
 
     btnCancel.onclick = closeModal;
-    document.getElementById('modal-close').onclick = closeModal;
+    if (btnClose) btnClose.onclick = closeModal;
 
-    if (overlay) overlay.classList.remove('hidden');
+    overlay.classList.remove('hidden');
+    // Force a reflow
+    void modal.offsetWidth;
+    modal.classList.add('show');
   },
 
   // Loaders
