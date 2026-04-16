@@ -133,6 +133,7 @@ YÊU CẦU SỐ 2 - VIDEO PROMPT (VEO 3.1):
 Thuộc tính "veo3_prompt" PHẢI bắt đầu bằng cụm từ cố định sau để đảm bảo đồng nhất:
 "3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character."
 
+- QUY TẮC BỐI CẢNH (SETTINGS): Trong một tập phim, hãy giới hạn chỉ sử dụng tối đa 2-3 bối cảnh chính (ví dụ: trong nhà, ngoài sân). Hãy tái sử dụng mô tả bối cảnh giống hệt nhau để AI Video không vẽ ra các phòng khác nhau.
 - QUY TẮC CỨNG: Tuyệt đối không sử dụng các từ liên quan đến thực tế như: "realistic", "photorealistic", "8k", "photography", "real person".
 - Nếu có nhân vật: Bạn phải chèn NGUYÊN VĂN đoạn "Appearance DNA" của nhân vật đó vào ngay sau Style Prefix. KHÔNG ĐƯỢC tự ý tóm tắt hay thay đổi ngoại hình của họ giữa các cảnh.
 - Mô tả hành động và bối cảnh: Viết bằng TIẾNG ANH sống động, chi tiết về góc máy và ánh sáng.
@@ -146,7 +147,7 @@ YÊU CẦU SỐ 4 - LỜI THOẠI (VOICE OVER):
 Toàn bộ thuộc tính "voice_over" trong JSON PHẢI được viết bằng TIẾNG VIỆT tự nhiên, lôi cuốn, đúng phong cách TikTok.
 
 VÍ DỤ CÂU PROMPT HỢP LỆ (DÀNH CHO VEO3_PROMPT):
-"3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character. A cute orange cat with big expressive eyes, fluffy fur, wearing a small blue collar. The cat is standing on a wooden table looking surprised. Dialogue: Con mèo này lạ quá, sao nó lại nhìn mình như thế nhỉ?"
+"3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character. A cute orange cat with big expressive eyes, fluffy fur, wearing a small blue collar. The cat is standing on a wooden table looking surprised inside a cozy sunlit kitchen with white tiles. Dialogue: Con mèo này lạ quá, sao nó lại nhìn mình như thế nhỉ?"
 
 YÊU CẦU ĐỊNH DẠNG:
 Trả về duy nhất một đối tượng JSON theo cấu trúc sau:
@@ -166,7 +167,7 @@ Trả về duy nhất một đối tượng JSON theo cấu trúc sau:
   "copyright_advice": "...",
   "direction_for_editor": "..."
 }
-BẮT BUỘC: Không bao giờ bỏ trống "veo3_prompt". Toàn bộ LỜI THOẠI (Dialogue) trong prompt PHẢI LÀ TIẾNG VIỆT CÓ DẤU. Toàn bộ phong cách PHẢI là Hoạt hình 3D.
+BẮT BUỘC: Không bao giờ bỏ trống "veo3_prompt". Toàn bộ LỜI THOẠI (Dialogue) trong prompt PHẢI LÀ TIẾNG VIỆT CÓ DẤU. Toàn bộ phong cách PHẢI là Hoạt hình 3D. Giới hạn bối cảnh tối đa 2-3 địa điểm.
 `;
 
         let bibleStr = '';
@@ -272,8 +273,9 @@ Tuyệt đối KHÔNG sử dụng phong cách thực tế (Realistic).
 QUY TẮC CỨNG:
 1. Luôn BẮT ĐẦU prompt bằng Style Prefix ở trên.
 2. Chèn NGUYÊN VĂN mô tả nhân vật (nội dung trong Appearance DNA) vào ngay sau prefix.
-3. KHÔNG tự ý thay đổi các đặc điểm nhận dạng của nhân vật giữa các cảnh.
-4. BẮT BUỘC CUỐI PROMPT: Phải có phần lời thoại tiếng Việt định dạng: "Dialogue: [nội dung lời thoại tiếng Việt]".
+3. Không tự ý thay đổi các đặc điểm nhận dạng của nhân vật giữa các cảnh.
+4. Bối cảnh (Background): Phải đồng nhất với các cảnh khác trong cùng video. Sử dụng cùng một mô tả nếu bối cảnh giống nhau.
+5. BẮT BUỘC CUỐI PROMPT: Phải có phần lời thoại tiếng Việt định dạng: "Dialogue: [nội dung lời thoại tiếng Việt]".
 
 Trả về kết quả dưới định dạng JSON: {"prompt": "nội dung prompt..."}`;
         
