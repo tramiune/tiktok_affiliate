@@ -46,6 +46,23 @@ export const template = `
         </div>
     </div>
 
+    <!-- Batch Prompt Coordination Center -->
+    <div id="batch-center" class="card mb-6 bg-gray-50 border-primary hidden">
+        <div class="card-header">
+            <h3><i class="fa-solid fa-layer-group text-primary"></i> Trung tâm Điều phối Prompt (VEO 3 Ultra)</h3>
+            <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm" id="btn-copy-all"><i class="fa-solid fa-copy"></i> Sao chép tất cả</button>
+                <button class="btn btn-secondary btn-sm" id="btn-export-txt"><i class="fa-solid fa-file-export"></i> Xuất kịch bản (.txt)</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <p class="text-xs text-gray mb-3 italic"><i class="fa-solid fa-info-circle"></i> Sử dụng công cụ này để quản lý việc dán câu lệnh vào Veo 3 Ultra thủ công nhưng nhanh chóng.</p>
+            <div id="checklist-container" class="grid-1 gap-2">
+                <!-- Checklist items appear here -->
+            </div>
+        </div>
+    </div>
+
     <div class="section-title mb-4">
         <h3><i class="fa-solid fa-film text-primary"></i> Kịch bản Cảnh quay (Storyboard)</h3>
     </div>
@@ -111,20 +128,49 @@ function renderHeader() {
 function renderScenes() {
     const container = document.getElementById('scenes-container');
     const empty = document.getElementById('scenes-empty');
+    const batchCenter = document.getElementById('batch-center');
+    const checklistContainer = document.getElementById('checklist-container');
     
     if(!scenes || scenes.length === 0) {
         container.innerHTML = '';
         if(empty) empty.classList.remove('hidden');
+        if(batchCenter) batchCenter.classList.add('hidden');
         return;
     }
     
     if(empty) empty.classList.add('hidden');
+    if(batchCenter) batchCenter.classList.remove('hidden');
+
+    // Render Checklist in Batch Center
+    if(checklistContainer) {
+        checklistContainer.innerHTML = scenes.map((s, idx) => `
+            <div class="flex items-center justify-between p-2 bg-white rounded border border-gray-100 hover:bg-gray-50">
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" class="scene-check" data-idx="${idx}" ${s.isGenerated ? 'checked' : ''}>
+                    <span class="text-sm font-medium ${s.isGenerated ? 'text-gray line-through' : ''}">Cảnh ${s.scene_number || (idx+1)}: ${s.action.substring(0, 50)}...</span>
+                </div>
+                <button class="btn btn-secondary btn-sm quick-copy" data-idx="${idx}">
+                    <i class="fa-solid fa-copy"></i> Copy Prompt
+                </button>
+            </div>
+        `).join('');
+    }
+    
+    // Render Main Storyboard
     container.innerHTML = scenes.map((s, idx) => `
-        <div class="card scene-card">
+        <div class="card scene-card ${s.isGenerated ? 'opacity-75 bg-gray-50' : ''}">
             <div class="card-body">
                 <div class="flex justify-between items-center mb-3">
-                    <span class="badge badge-primary">Cảnh ${s.scene_number || (idx+1)}</span>
-                    <a href="#/scene-detail/${currentChannelId}/${currentVideoId}/${idx}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-eye"></i> Xem & Lấy câu lệnh VEO 3</a>
+                    <div class="flex items-center gap-3">
+                        <span class="badge ${s.isGenerated ? 'badge-gray' : 'badge-primary'}">Cảnh ${s.scene_number || (idx+1)}</span>
+                        ${s.isGenerated ? '<span class="text-xs text-success"><i class="fa-solid fa-check-circle"></i> Đã tạo video</span>' : ''}
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="btn btn-secondary btn-sm quick-copy" data-idx="${idx}" title="Copy Prompt nhanh">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                        <a href="#/scene-detail/${currentChannelId}/${currentVideoId}/${idx}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-eye"></i> Xem Chi tiết</a>
+                    </div>
                 </div>
                 <div class="grid-2">
                     <div>
@@ -147,9 +193,64 @@ function setupEvents() {
         window.location.hash = `#/channel/${currentChannelId}`;
     };
 
+    // --- Batch Actions ---
+    const btnCopyAll = document.getElementById('btn-copy-all');
+    if(btnCopyAll) {
+        btnCopyAll.onclick = () => {
+            if(!scenes || scenes.length === 0) return;
+            const text = scenes.map((s, idx) => `SCENE ${s.scene_number || (idx+1)} PROMPT:\n${s.veo3_prompt}`).join('\n\n---\n\n');
+            UI.copyToClipboard(text, "Đã sao chép tất cả kịch bản!");
+        };
+    }
+
+    const btnExportTxt = document.getElementById('btn-export-txt');
+    if(btnExportTxt) {
+        btnExportTxt.onclick = () => {
+            if(!scenes || scenes.length === 0) return;
+            const text = scenes.map((s, idx) => `SCENE ${s.scene_number || (idx+1)}:\nAction: ${s.action}\nVoice: ${s.voice_over}\nPrompt: ${s.veo3_prompt}`).join('\n\n====================\n\n');
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `script_${currentVideo.title.replace(/\s+/g, '_')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            UI.showSuccess("Đã tải file kịch bản!");
+        };
+    }
+
+    // --- Quick Copy & Checklist ---
+    const viewContainer = document.getElementById('view-container');
+    
+    // Sử dụng event delegation
+    viewContainer.onclick = async (e) => {
+        const copyBtn = e.target.closest('.quick-copy');
+        if(copyBtn) {
+            const idx = copyBtn.getAttribute('data-idx');
+            const scene = scenes[idx];
+            if(scene && scene.veo3_prompt) {
+                UI.copyToClipboard(scene.veo3_prompt, `Đã copy Prompt cảnh ${parseInt(idx)+1}`);
+            }
+            return;
+        }
+
+        const checkInput = e.target.closest('.scene-check');
+        if(checkInput) {
+            const idx = checkInput.getAttribute('data-idx');
+            scenes[idx].isGenerated = checkInput.checked;
+            try {
+                await DBDocs.saveVideoScenes(currentChannelId, currentVideoId, scenes);
+                renderScenes(); // Re-render to update UI (line-through, etc.)
+            } catch (err) {
+                UI.showError("Lỗi lưu trạng thái: " + err.message);
+            }
+            return;
+        }
+    };
+
     document.getElementById('btn-gen-scenes').onclick = async () => {
         try {
-            UI.setHTML('scenes-container', '<div class="loading-full"><i class="fa-solid fa-wand-magic-sparkles fa-spin text-primary"></i> AI đang viết kịch bản chi tiết từng cảnh... Vui lòng chờ 20-40s.</div>');
+            UI.injectLoader('form-card', 'AI đang viết kịch bản chi tiết... Vui lòng chờ 20-40s.');
             const scenesEmpty = document.getElementById('scenes-empty');
             if(scenesEmpty) scenesEmpty.classList.add('hidden');
             
@@ -170,6 +271,8 @@ function setupEvents() {
         } catch (e) {
             UI.showError("Lỗi AI: " + e.message);
             renderScenes();
+        } finally {
+            UI.removeLoader('form-card');
         }
     };
     
@@ -186,7 +289,7 @@ function setupEvents() {
                 UI.setHTML('view-container', template);
                 
                 const p = OpenAIService.buildVideoScenesPrompt(currentVideo, currentChannel, characterBible);
-                const combined = p.systemPrompt + "\\n\\n" + p.userMessage;
+                const combined = p.systemPrompt + "\n\n" + p.userMessage;
                 
                 UI.showManualAIModal({
                     title: "Sinh cảnh quay qua ChatGPT",

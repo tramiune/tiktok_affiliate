@@ -205,5 +205,20 @@ export const UI = {
   nl2br(str) {
     if (typeof str !== 'string') return str;
     return str.replace(/\n/g, '<br>');
+  },
+
+  /**
+   * Clipboard Helper
+   */
+  async copyToClipboard(text, successMsg = "Đã sao chép vào bộ nhớ tạm!") {
+    try {
+      await navigator.clipboard.writeText(text);
+      this.showSuccess(successMsg);
+      return true;
+    } catch (err) {
+      console.error('Lỗi sao chép:', err);
+      this.showError("Không thể sao chép tự động. Vui lòng chọn text và copy thủ công.");
+      return false;
+    }
   }
 };
