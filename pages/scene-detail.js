@@ -57,6 +57,26 @@ export const template = `
                 </div>
             </div>
         </div>
+
+        <div class="card bg-primary-light border-primary">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-microphone-lines text-primary"></i> Voice Over AI Preview</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-xs text-gray mb-3 italic">Nghe thử giọng đọc AI cho đoạn kịch bản này trước khi xuất file.</p>
+                <div id="audio-player-container" class="mb-4 hidden">
+                    <audio id="sc-audio-element" controls class="w-full"></audio>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button class="btn btn-primary w-full" id="btn-gen-voice">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Sinh giọng nói AI
+                    </button>
+                    <a id="btn-download-voice" class="btn btn-secondary w-full hidden" download="voiceover.mp3">
+                        <i class="fa-solid fa-download"></i> Tải xuống MP3
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 `;
@@ -137,6 +157,42 @@ function setupEvents() {
             UI.showToast("Đã lưu thay đổi cảnh quay");
         } catch (e) {
             UI.showError(e.message);
+        }
+    };
+
+    document.getElementById('btn-gen-voice').onclick = async () => {
+        const text = document.getElementById('sc-voice').value;
+        if(!text) {
+            UI.showError("Vui lòng nhập lời thoại trước khi sinh giọng nói!");
+            return;
+        }
+
+        try {
+            const btn = document.getElementById('btn-gen-voice');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang sinh giọng nói...';
+
+            const audioUrl = await OpenAIService.generateSpeech(text);
+            
+            const audioContainer = document.getElementById('audio-player-container');
+            const audioElement = document.getElementById('sc-audio-element');
+            const downloadBtn = document.getElementById('btn-download-voice');
+
+            audioElement.src = audioUrl;
+            audioContainer.classList.remove('hidden');
+            
+            downloadBtn.href = audioUrl;
+            downloadBtn.classList.remove('hidden');
+            downloadBtn.download = `voice_scene_${scene.scene_number || 'X'}.mp3`;
+
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+            UI.showSuccess("Đã sinh giọng nói thành công!");
+        } catch (e) {
+            UI.showError("Lỗi TTS: " + e.message);
+            document.getElementById('btn-gen-voice').disabled = false;
+            document.getElementById('btn-gen-voice').innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Sinh giọng nói AI';
         }
     };
 }

@@ -63,5 +63,16 @@ export const Store = {
 
   setGeneratorUrl(url) {
     return this.set('generator_url', url);
+  },
+
+  /**
+   * Quản lý AI Voice (OpenAI TTS)
+   */
+  getTTSType() {
+    return this.get('tts_voice', 'nova'); // Mặc định là giọng nữ Nova
+  },
+
+  setTTSType(voice) {
+    return this.set('tts_voice', voice);
   }
 };

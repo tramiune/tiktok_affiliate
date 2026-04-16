@@ -120,19 +120,19 @@ Lưu ý: Viết tiêu đề và tóm tắt lôi cuốn, đúng phong cách TikTo
     buildVideoScenesPrompt(videoData, channelContext, characterBible = null) {
         const systemPrompt = `
 Bạn là nhà biên kịch và đạo diễn quay dựng video ngắn chuyên nghiệp cho kênh TikTok "Triệu view".
-Nhiệm vụ: Phân rã tóm tắt thành kịch bản 15-20 cảnh quay chi tiết.
+Nhiệm vụ: Phân rã tóm tắt thành kịch bản 8 -12 cảnh quay chi tiết.
 
 YÊU CẦU SỐ 1 - MẠCH TRUYỆN:
-BẮT BUỘC phân rã kịch bản này ra thành 15 ĐẾN 20 CẢNH QUAY (Scenes) liên tục, kịch tính.
+BẮT BUỘC phân rã kịch bản này ra thành 8 ĐẾN 12 CẢNH QUAY (Scenes) liên tục, kịch tính.
 
 YÊU CẦU SỐ 2 - VIDEO PROMPT (VEO 3.1):
-Thuộc tính "veo3_prompt" phải mô tả cực kỳ chi tiết cảnh quay bằng TIẾNG ANH (từ 50-80 từ). 
+Thuộc tính "veo3_prompt" phải mô tả cực kỳ chi tiết cảnh quay bằng TIẾNG ANH (từ 80 - 150 từ).
 - Nếu có nhân vật, phải chèn NGUYÊN VĂN "Ngoại hình" (Appearance DNA) của họ vào.
 - Nếu không có nhân vật, phải mô tả bối cảnh, ánh sáng, góc máy và chuyển động một cách sống động.
 - Luôn đảm bảo field này có nội dung chất lượng cao.
 
 YÊU CẦU SỐ 3 - NÚT THẮT DỞ DANG (CLIFFHANGER):
-Cảnh cuối cùng (Scene 15-20) PHẢI thực hiện đúng phần "cliffhanger" đã định hướng. Nó phải kết thúc ở đoạn cao trào nhất, hoặc một câu hỏi bỏ ngỏ, không được kết thúc trọn vẹn. 
+Cảnh cuối cùng (Scene 8 -12) PHẢI thực hiện đúng phần "cliffhanger" đã định hướng. Nó phải kết thúc ở đoạn cao trào nhất, hoặc một câu hỏi bỏ ngỏ, không được kết thúc trọn vẹn.
 
 YÊU CẦU SỐ 4 - AN TOÀN BẢN QUYỀN:
 Tuyệt đối không sử dụng tên thật, bài hát có bản quyền hay thương hiệu lớn trong kịch bản.
@@ -244,5 +244,37 @@ Dàn nhân vật cần thiết cho phong cách này là gì? Hãy phóng tác ch
     async generateCharacters(channelContext, strategyData) {
         const p = this.buildCharactersPrompt(channelContext, strategyData);
         return this.callAPI(p.systemPrompt, p.userMessage);
+    },
+
+    /**
+     * 5. Sinh giọng nói AI (Text-To-Speech)
+     * Trả về Blob URL để chơi ngay lập tức
+     */
+    async generateSpeech(text) {
+        const apiKey = Store.getOpenAIKey();
+        const voice = Store.getTTSType();
+        
+        if (!apiKey) throw new Error("Chưa cấu hình API Key");
+
+        const response = await fetch("https://api.openai.com/v1/audio/speech", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "tts-1",
+                voice: voice,
+                input: text
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error?.message || "Lỗi khi tạo giọng nói AI");
+        }
+
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
     }
 };

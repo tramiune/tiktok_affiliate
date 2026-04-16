@@ -227,7 +227,14 @@ function renderScenes() {
                     </div>
                     <div>
                         <p class="text-xs text-gray uppercase mb-1">Voice Over / Lời thoại:</p>
-                        <p class="text-sm border-l-4 border-primary pl-2 bg-gray-light py-1">${s.voice_over || '(Không có lời thoại)'}</p>
+                        <div class="flex items-start gap-2">
+                            <p class="text-sm border-l-4 border-primary pl-2 bg-gray-light py-1 flex-1">${s.voice_over || '(Không có lời thoại)'}</p>
+                            ${s.voice_over ? `
+                                <button class="btn btn-icon btn-sm btn-audio" data-idx="${idx}" title="Nghe giọng nói AI">
+                                    <i class="fa-solid fa-volume-up"></i>
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -297,6 +304,35 @@ function setupEvents() {
                 } catch (err) {
                     UI.showError("Lỗi lưu trạng thái: " + err.message);
                 }
+            }
+            return;
+        }
+
+        const audioBtn = e.target.closest('.btn-audio');
+        if(audioBtn) {
+            const idx = audioBtn.getAttribute('data-idx');
+            const sceneList = Array.isArray(scenes) ? scenes : (scenes.scenes || []);
+            const scene = sceneList[idx];
+            
+            if(!scene || !scene.voice_over) return;
+
+            try {
+                const icon = audioBtn.querySelector('i');
+                icon.className = 'fa-solid fa-spinner fa-spin';
+                
+                // Trực tiếp gọi sinh và chơi
+                const audioUrl = await OpenAIService.generateSpeech(scene.voice_over);
+                const audio = new Audio(audioUrl);
+                audio.play();
+                
+                icon.className = 'fa-solid fa-volume-up';
+                audio.onended = () => {
+                    URL.revokeObjectURL(audioUrl); // Giải phóng bộ nhớ
+                };
+            } catch (err) {
+                UI.showError("Lỗi sinh giọng nói: " + err.message);
+                const icon = audioBtn.querySelector('i');
+                if(icon) icon.className = 'fa-solid fa-volume-up';
             }
             return;
         }

@@ -31,6 +31,27 @@ export const template = `
 
     <div class="card">
         <div class="card-header">
+            <h3>Cấu hình Giọng nói AI (TTS)</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label" for="tts-voice">Chọn Giọng đọc</label>
+                <select id="tts-voice" class="form-control">
+                    <option value="nova">Nova (Nữ - Trẻ trung, năng động)</option>
+                    <option value="shimmer">Shimmer (Nữ - Chuyên nghiệp, rõ ràng)</option>
+                    <option value="alloy">Alloy (Trung tính - Cân bằng)</option>
+                    <option value="echo">Echo (Nam - Ấm áp, truyền cảm)</option>
+                    <option value="onyx">Onyx (Nam - Trầm, quyền lực)</option>
+                    <option value="fable">Fable (Trung tính - Kể chuyện)</option>
+                </select>
+                <div class="form-help">Giọng nói sẽ được sử dụng để tạo Voice Over cho kịch bản của bạn.</div>
+            </div>
+            <button id="btn-save-voice" class="btn btn-secondary btn-sm">Lưu Giọng nói</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
             <h3>Cấu hình Video Generator</h3>
         </div>
         <div class="card-body">
@@ -67,6 +88,7 @@ export function init() {
     // Load saved settings
     inputKey.value = Store.getOpenAIKey();
     inputUrl.value = Store.getGeneratorUrl();
+    document.getElementById('tts-voice').value = Store.getTTSType();
 
     btnToggle.addEventListener('click', () => {
         if (inputKey.type === 'password') {
@@ -101,5 +123,11 @@ export function init() {
         }
         Store.setGeneratorUrl(url);
         UI.showSuccess("Đã lưu Link Tool thành công!");
+    });
+
+    document.getElementById('btn-save-voice').addEventListener('click', () => {
+        const voice = document.getElementById('tts-voice').value;
+        Store.setTTSType(voice);
+        UI.showSuccess("Đã lưu Giọng nói thành công!");
     });
 }
