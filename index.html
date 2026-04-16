@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI TikTok Planner - Quản lý Nội Dung</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div id="app-container" class="app-container">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar hidden">
+            <div class="sidebar-header">
+                <h2><i class="fa-solid fa-wand-magic-sparkles"></i> AI Planner</h2>
+                <button id="btn-close-sidebar" class="btn-icon mobile-only"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#/dashboard" class="nav-item" id="nav-dashboard"><i class="fa-solid fa-home"></i> Bảng điều khiển</a>
+                <a href="#/channel/create" class="nav-item" id="nav-create"><i class="fa-solid fa-plus-circle"></i> Tạo kênh mới</a>
+                <a href="#/settings" class="nav-item" id="nav-settings"><i class="fa-solid fa-cog"></i> Cài đặt AI & API</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info hidden" id="user-info">
+                    <img src="" alt="avatar" id="user-avatar" class="avatar">
+                    <div class="user-details">
+                        <span id="user-name" class="name">Username</span>
+                        <a href="javascript:void(0)" id="btn-logout" class="logout-link">Đăng xuất</a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header id="main-header" class="header hidden">
+                <button id="btn-toggle-sidebar" class="btn-icon"><i class="fa-solid fa-bars"></i></button>
+                <div class="header-title">
+                    <h1 id="page-title">Chào mừng</h1>
+                </div>
+            </header>
+
+            <!-- Dynamic View -->
+            <div id="view-container" class="view-container">
+                <!-- Views get injected here by router -->
+                <div class="loading-full"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải ứng dụng...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals & Toasts Container -->
+    <div id="toast-container" class="toast-container"></div>
+    <div id="modal-container" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Tiêu đề</h3>
+                <button id="modal-close" class="btn-icon"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                Nội dung
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <button class="btn btn-secondary" id="modal-cancel">Hủy</button>
+                <button class="btn btn-primary" id="modal-confirm">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ES Module App Entry -->
+    <!-- Define Firebase SDKs map to allow easy CDN use -->
+    <script type="importmap">
+      {
+        "imports": {
+          "firebase/app": "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js",
+          "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js",
+          "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"
+        }
+      }
+    </script>
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
