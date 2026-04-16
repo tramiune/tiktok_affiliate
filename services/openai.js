@@ -7,6 +7,9 @@ export const OpenAIService = {
             throw new Error("Chưa cấu hình OpenAI API Key. Vui lòng vào Cài đặt để thêm.");
         }
 
+        // Đảm bảo luôn có từ "json" trong tin nhắn để không bị lỗi OpenAI JSON Mode
+        const enhancedSystemPrompt = systemPrompt + "\n\nIMPORTANT: Your response MUST be a valid JSON object.";
+
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -17,7 +20,7 @@ export const OpenAIService = {
                 model: "gpt-4o", // You can configure this to gpt-4-turbo or gpt-3.5-turbo
                 response_format: { type: "json_object" },
                 messages: [
-                    { role: "system", content: systemPrompt },
+                    { role: "system", content: enhancedSystemPrompt },
                     { role: "user", content: userMessage }
                 ],
                 temperature: 0.7
