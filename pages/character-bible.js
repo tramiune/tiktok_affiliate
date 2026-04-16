@@ -1,4 +1,5 @@
 import { DBDocs } from '../services/firestore.js';
+import { OpenAIService } from '../services/openai.js';
 import { UI } from '../assets/js/ui.js';
 
 export const title = 'Hồ sơ nhân vật';
@@ -12,6 +13,7 @@ export const template = `
         </div>
         <div class="flex gap-2">
             <button class="btn btn-primary" id="btn-add-char"><i class="fa-solid fa-plus"></i> Thêm Nhân Vật</button>
+            <button class="btn btn-secondary" id="btn-ai-gen-chars"><i class="fa-solid fa-wand-magic-sparkles"></i> Phóng tác bằng AI</button>
             <button class="btn btn-secondary" id="btn-back-st"><i class="fa-solid fa-arrow-left"></i> Về Chiến lược</button>
         </div>
     </div>
@@ -146,6 +148,36 @@ function setupEvents() {
 
     const btnAddChar = document.getElementById('btn-add-char');
     if(btnAddChar) btnAddChar.onclick = () => openModal(-1);
+    
+    const btnAiGen = document.getElementById('btn-ai-gen-chars');
+    if(btnAiGen) {
+        btnAiGen.onclick = async () => {
+            if(characters.length > 0) {
+                if(!confirm("Kênh này đã có nhân vật. Nếu AI tự tạo mới sẽ nối thêm vào danh sách hiện tại. Bạn có muốn tiếp tục không?")) return;
+            }
+            try {
+                UI.setHTML('char-list', '');
+                UI.setHTML('char-empty', '<div class="loading-full"><i class="fa-solid fa-wand-magic-sparkles fa-spin text-primary"></i> AI đang phân tích chiến lược và phóng tác dàn nhân vật... Vui lòng chờ 15 giây.</div>');
+                if(document.getElementById('char-empty')) document.getElementById('char-empty').classList.remove('hidden');
+
+                const channel = await DBDocs.getChannel(currentChannelId);
+                const strategy = await DBDocs.getStrategy(currentChannelId);
+                const response = await OpenAIService.generateCharacters(channel, strategy);
+                
+                if(response && response.characters) {
+                    characters = characters.concat(response.characters);
+                    await DBDocs.saveCharacterBible(currentChannelId, characters);
+                    renderCharacters();
+                    UI.showToast("Đã phóng tác dàn nhân vật thành công!");
+                } else {
+                    throw new Error("Không nhận được dữ liệu hợp lệ.");
+                }
+            } catch (e) {
+                UI.showError("Lỗi AI: " + e.message);
+                renderCharacters(); // Khôi phục lại list cũ nếu lỗi
+            }
+        };
+    }
     
     const closeModalBtn = document.getElementById('close-modal');
     if(closeModalBtn) closeModalBtn.onclick = closeModal;

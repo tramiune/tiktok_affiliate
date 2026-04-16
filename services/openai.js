@@ -70,30 +70,74 @@ Phân tích và lên chiến lược cho kênh TikTok sau:
 - Đối tượng: ${channelData.audience}
 - Số video muốn làm đợt này: ${channelData.videoCount}
 `;
-        return await this.callAPI(systemPrompt, userMsg);
+        return this.callAPI(systemPrompt, userMsg);
     },
 
     /**
-     * 2. Tạo nội dung chi tiết theo từng cảnh quay
+     * 2. Tạo nội dung chi tiết theo từng cảnh quay (Scenes)
      */
     async generateVideoScenes(videoData, channelContext, characterBible = null) {
         const systemPrompt = `
-Bạn là nhà biên kịch và đạo diễn quay dựng video dọc (TikTok).
-Dựa vào kịch bản tóm tắt, hãy viết chi tiết từng cảnh quay để làm input cho hệ thống video generation AI (VEO 3).
-YÊU CẦU:
-- Trả về JSON duy nhất: {"scenes": [{ "scene_number", "goal", "setting", "characters", "action", "emotion", "camera_angle", "lighting", "voice_over", "veo3_prompt" }]}
-- Trong đó "veo3_prompt" (prompt tiếng Anh chuẩn, chi tiết) để Gen image/video. Lưu ý VEO 3 cần miêu tả cụ thể không gian, góc máy, ánh sáng, hành động của nhân vật.
-- Nếu có "Character Bible", BẮT BUỘC phải dùng định dạng ngoại hình nhân vật trong veo3_prompt để giữ vững sự đồng nhất nhân vật.
+Bạn là nhà biên kịch và đạo diễn quay dựng video ngắn.
+Dựa vào kịch bản, hãy viết chi tiết cảnh quay làm input cho hệ thống video AI (VEO 3, Kling).
+
+YÊU CẦU SỐ 1 - ĐỘ DÀI VÀ SỐ LƯỢNG CẢNH:
+BẮT BUỘC phải phân rã kịch bản này ra thành mạch truyện dài từ 10 ĐẾN 20 CẢNH QUAY (Scenes) liên tục, logic và tiếp nối nhau để video có mạch truyện chi tiết.
+
+YÊU CẦU SỐ 2 - ĐỒNG NHẤT NHÂN VẬT (CONSISTENCY):
+Trong "veo3_prompt" (prompt tiếng Anh để vẽ video), khi nhân vật xuất hiện, bạn BẮT BUỘC COPY Y NGUYÊN dòng "Ngoại hình (look)" của nhân vật đó từ Character Bible và chèn vào prompt. KHÔNG được đổi từ, KHÔNG được viết lại. 
+AI Video cần chuỗi text mô tả hoàn toàn giống nhau 100% ở mọi cảnh để giữ đúng 1 khuôn mặt.
+
+CẤU TRÚC JSON DUY NHẤT TRẢ VỀ:
+{"scenes": [{ "scene_number", "goal", "setting", "characters", "action", "emotion", "camera_angle", "lighting", "voice_over", "veo3_prompt" }]}
+
+"veo3_prompt" phải bằng TÍẾNG ANH, tả rõ bối cảnh, góc máy, ánh sáng và hành động.
 `;
+
+        let bibleStr = '';
+        if (characterBible && characterBible.length > 0) {
+            bibleStr = 'CHARACTER BIBLE (TUYỆT ĐỐI CHÈN NGUYÊN VĂN PHẦN NGOẠI HÌNH VÀO VEO3_PROMPT LÚC NHÂN VẬT XUẤT HIỆN):\n';
+            bibleStr += characterBible.map(c => `- Tên: ${c.name}\n  Ngoại hình: ${c.look}`).join('\n\n');
+        }
+
         const userMsg = `
 Ngữ cảnh kênh: ${channelContext.name} (${channelContext.topic}).
-${characterBible ? 'Character Bible: ' + JSON.stringify(characterBible) : ''}
-Hãy viết chi tiết các cảnh cho video:
+${bibleStr}
+
+Hãy viết kịch bản chi tiết cho video sau:
 - Tiêu đề: ${videoData.title}
 - Hook: ${videoData.hook}
 - Tóm tắt nội dung: ${videoData.summary}
 - Thông điệp: ${videoData.goal}
 `;
-        return await this.callAPI(systemPrompt, userMsg);
+        return this.callAPI(systemPrompt, userMsg);
+    },
+
+    /**
+     * 3. Tự động sinh Hồ sơ nhân vật
+     */
+    async generateCharacters(channelContext, strategyData) {
+        const systemPrompt = `
+Bạn là một chuyên gia casting và xây dựng hồ sơ nhân vật cho các Series phim ngắn TikTok.
+Dựa vào định hướng kênh và chiến lược nội dung, hãy tự động sáng tạo ra danh sách các nhân vật chủ chốt.
+
+YÊU CẦU:
+- Trả về CHUẨN JSON duy nhất: {"characters": [{"name", "role", "age", "look", "personality", "note"}]}
+- Tham số "look" (Ngoại hình) BẮT BUỘC viết bằng TIẾNG ANH thật chi tiết, chuẩn xác như một Prompt để nạp vào VEO 3, Midjourney. Mô tả kỹ khuôn mặt, trang phục, sắc tộc, độ tuổi.
+- Tham số "name", "role", "age", "personality", "note" viết bằng TIẾNG VIỆT.
+`;
+
+        const userMsg = `
+Phân tích và tự động tạo các nhân vật chính cho Series phim ngắn này.
+- Kênh: ${channelContext.name} (${channelContext.topic})
+- Khán giả: ${channelContext.audience}
+- Concept: ${strategyData.conceptName || ''}
+- Giọng điệu: ${strategyData.toneOfVoice || ''}
+- Visual Style: ${strategyData.visualStyle || ''}
+- Pillars (Nội dung chính): ${(strategyData.pillars||[]).join(', ')}
+
+Hãy tạo cho tôi 2-3 nhân vật cốt lõi.
+`;
+        return this.callAPI(systemPrompt, userMsg);
     }
 };
