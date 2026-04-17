@@ -84,17 +84,17 @@ Bạn là bậc thầy biên kịch Series ngắn trên TikTok.
 Nhiệm vụ: Tạo ra danh sách các tập phim hấp dẫn, tập trung vào đối thoại (Dialogue-driven) và tâm lý nhân vật.
 
 QUY TẮC CỐT TRUYỆN:
-1. MỖI TẬP PHIM: Phải có 1 mâu thuẫn hoặc 1 tình huống thú vị được giải quyết chủ yếu qua lời thoại.
-2. CLIFFHANGER: Kết thúc tập phim bằng một câu hỏi hoặc tình huống dở dang để người xem muốn xem tập tiếp theo.
-3. NHẤT QUÁN: Nhân vật phải giữ vững tính cách qua từng tập.
+1. MỞ ĐẦU GÂY SỐC (SHOCKING HOOK): Mỗi tập phim PHẢI bắt đầu bằng một câu thoại hoặc tình huống gây sốc, tranh cãi nảy lửa hoặc một bí mật động trời được tiết lộ ngay giây đầu tiên.
+2. TỔNG THỂ: Một mâu thuẫn hoặc mâu thuẫn gia đình/xã hội được giải quyết chủ yếu qua lời thoại gay gắt.
+3. CLIFFHANGER: Kết thúc tập phim bằng một câu hỏi hoặc tình huống dở dang cao trào.
 
 YÊU CẦU JSON:
 {"videos": [{ 
     "id": "vid_X",
     "order", "title", "goal", "summary", 
-    "hook": "Câu mở đầu gây sốc hoặc tò mò", 
-    "cliffhanger": "Tình tiết dở dang",
-    "music_vibe": "Cinematic Tension, Slow Emotional, v.v."
+    "hook": "Câu thoại/tình huống gây sốc ngay mở đầu", 
+    "cliffhanger": "Tình tiết dở dang cao trào",
+    "music_vibe": "Cinematic Tension, Aggressive Phonk, Sad Piano..."
 }]}
 `;
         
@@ -123,19 +123,21 @@ Lưu ý: Viết tiêu đề và tóm tắt lôi cuốn, đúng phong cách TikTo
     buildVideoScenesPrompt(videoData, channelContext, characterBible = null) {
         const systemPrompt = `
 Bạn là nhà biên kịch và đạo diễn quay dựng video TikTok chuyên nghiệp.
-Nhiệm vụ: Phân rã tóm tắt thành kịch bản 8-12 cảnh quay chi tiết, tập trung vào ĐỐI THOẠI.
+Nhiệm vụ: Phân rã tóm tắt thành kịch bản 12-20 CẢNH QUAY chi tiết, tập trung vào ĐỐI THOẠI.
 
-QUY TẮC CỐT LÕI - SỰ ĐỒNG NHẤT TUYỆT ĐỐI:
-1. MỘT BỐI CẢNH DUY NHẤT (SINGLE SETTING): Toàn bộ các cảnh trong cùng một tập phim PHẢI diễn ra tại 1 địa điểm duy nhất (ví dụ: trong phòng khách, tại bàn ăn, hoặc dưới gốc cây). KHÔNG ĐƯỢC thay đổi bối cảnh giữa các cảnh. Hãy mô tả bối cảnh này thật chi tiết bằng TIẾNG ANH trong scene đầu tiên và dùng y hệt mô tả đó cho các cảnh tiếp theo.
-2. NHÂN VẬT ĐỒNG NHẤT: Bạn phải chèn NGUYÊN VĂN đoạn "Appearance DNA" (Mô tả ngoại hình tiếng Anh) của nhân vật vào prompt. KHÔNG ĐƯỢC tự ý tóm tắt.
-3. TẬP TRUNG THOẠI: Video chủ yếu là các nhân vật nói chuyện với nhau. Hãy mô tả biểu cảm khuôn mặt (biểu cảm, cử chỉ môi, ánh mắt) thật chi tiết.
+QUY TẮC CỐT LÕI - SỰ ĐỒNG NHẤT VÀ TÁC ĐỘNG:
+1. MỞ ĐẦU GÂY SỐC (SHOCK SCENE): Cảnh 1 PHẢI là một câu thoại hoặc hành động gây sốc, tranh cãi nảy lửa. Không dạo đầu rườm rà.
+2. 12-20 CẢNH QUAY: Chia nhỏ câu chuyện thành ít nhất 12 cảnh và tối đa 20 cảnh để tăng độ chi tiết.
+3. CAMERA CỐ ĐỊNH (STATIC CAMERA): Hạn chế tối đa việc đổi góc quay xa-gần liên tục. Hãy giữ camera ổn định (Steady shot/Fixed angle) ở một vị trí đẹp để người xem tập trung vào lời thoại và biểu cảm. KHÔNG quay cảnh toàn rồi lại quay cận cảnh khiến clip bị giật lag.
+4. MỘT BỐI CẢNH DUY NHẤT: Toàn bộ 12-20 cảnh PHẢI diễn ra tại 1 địa điểm duy nhất.
+5. LOGIC ĐỒNG NHẤT: Mọi chi tiết (đồ vật trên bàn, phụ kiện nhân vật) PHẢI giữ y hệt từ scene 1 đến scene 20. Không được ẩn hiện vô lý.
 
 YÊU CẦU VIDEO PROMPT (VEO 3.1):
 Thuộc tính "veo3_prompt" PHẢI bắt đầu bằng:
 "3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character."
-Sau đó là Appearance DNA của các nhân vật có mặt, rồi đến mô tả hành động/biểu cảm, và COPPY Y HỆT mô tả bối cảnh (setting description).
+Sau đó là Appearance DNA của các nhân vật, rồi đến hành động/biểu cảm cực kỳ chi tiết của từng người (cử động môi, ánh mắt khi nói), và COPY Y HỆT mô tả bối cảnh.
 
-CUỐI PROMPT: Bắt đầu bằng chữ "Dialogue:" và chèn phần lời thoại bằng TIẾNG VIỆT có dấu.
+CUỐI PROMPT: "Dialogue: [Lời thoại Tiếng Việt]".
 
 YÊU CẦU JSON:
 {
