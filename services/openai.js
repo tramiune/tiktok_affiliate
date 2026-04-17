@@ -51,51 +51,50 @@ Bạn là một chuyên gia sáng tạo nội dung TikTok hàng đầu, am hiể
 Nhiệm vụ của bạn là tạo ra một chiến lược kênh hoàn chỉnh, độc bản và lôi cuốn.
 
 QUY TẮC CỐT LÕI:
-1. AN TOÀN BẢN QUYỀN (COPYRIGHT): Tuyệt đối không sử dụng tên thật của người nổi tiếng, không mô phỏng quá giống các bộ phim có sẵn. Mọi nhân vật và cốt truyện phải là sáng tạo mới hoàn toàn.
-2. CHIẾN THUẬT SERIES: Phải xác định một "Bí ẩn lớn" (The Big Mystery) hoặc "Mục tiêu dài hạn" kéo dài xuyên suốt các tập để tạo sự tò mò.
-3. GIỮ CHÂN: Luôn ưu tiên yếu tố kịch tính, bất ngờ và nhịp độ nhanh.
-4. PHONG CÁCH HÌNH ẢNH MẶC ĐỊNH: HOẠT HÌNH 3D (3D Animation, Pixar/Disney style). Đây là quy tắc cứng: Tuyệt đối KHÔNG sử dụng phong cách thực tế (Realistic) hay người thật. Mọi mô tả hình ảnh phải tuân theo phong cách này.
+1. TÊN NHÂN VẬT: Phải là TÊN TIẾNG VIỆT thực tế, gần gũi (ví dụ: Lan, Minh, Bà Tư, Anh Hải...).
+2. AN TOÀN BẢN QUYỀN (COPYRIGHT): Tuyệt đối không sử dụng tên thật của người nổi tiếng.
+3. CHIẾN THUẬT SERIES: Phải xác định một "Bí ẩn lớn" hoặc "Mục tiêu dài hạn" kéo dài xuyên suốt các tập.
+4. PHONG CÁCH HÌNH ẢNH: HOẠT HÌNH 3D (3D Animation, Pixar/Disney style). Đây là quy tắc cứng.
+5. SỰ ĐỒNG NHẤT: Mọi nhân vật phải có một bộ NGOẠI HÌNH CỐ ĐỊNH (Appearance DNA) mô tả bằng tiếng Anh cực kỳ chi tiết.
 
 YÊU CẦU JSON:
-- Trả về CHUẨN JSON.
 - "conceptName": (tên concept ấn tượng),
-- "contentDirection": (1-2 câu định hướng),
-- "bigMystery": (Vấn đề hoặc bí ẩn lớn nhất xuyên suốt cả series 40 tập),
-- "pillars": [danh sách 3 mảng nội dung chính],
+- "contentDirection": (định hướng cốt truyện),
+- "bigMystery": (Vấn đề hoặc bí ẩn lớn nhất xuyên suốt cả series),
+- "pillars": [3 mảng nội dung chính],
 - "toneOfVoice": (giọng điệu),
-- "visualStyle": (phong cách hình ảnh),
-- "characters": [Danh sách đúng 2-3 nhân vật chính (KHÔNG ĐƯỢC NHIỀU HƠN 3) với: id (chuỗi duy nhất, ví dụ: char_1), name, role, age, appearance_dna (Ngoại hình tả bằng TIẾNG ANH CHI TIẾT theo style hoạt hình), personality, note]
+- "visualStyle": "3D Animation, Pixar Style",
+- "characters": [Danh sách 2-3 nhân vật chính với: id, name (Tên Tiếng Việt), role, age, appearance_dna (Mô tả ngoại hình CHI TIẾT bằng TIẾNG ANH để AI vẽ chuẩn), personality, note]
 `;
         const userMessage = `
-Phân tích và lên chiến lược cho kênh TikTok sau:
+Phân tích và lên chiến lược cho kênh TikTok:
 - Tên kênh: ${channelData.name}
 - Chủ đề: ${channelData.topic}
 - Loại: ${channelData.type === 'series' ? 'Series nhiều tập liên tiếp' : 'Các video ngắn độc lập cùng chủ đề'}
 - Mô tả: ${channelData.desc}
-- Mục tiêu: ${channelData.goal}
-- Đối tượng: ${channelData.audience}
 
-Hãy tập trung xây dựng Concept và dàn nhân vật (chỉ 2-3 nhân vật trọng tâm) thật đặc sắc và có tính nhất quán cao.
+Hãy tập trung xây dựng Concept và dàn nhân vật (Tên Tiếng Việt) thật đặc sắc và có tính nhất quán cao.
 `;
         return { systemPrompt, userMessage };
     },
 
     buildVideosBatchPrompt(channelData, strategy, characters, previousVideos = [], startOrder = 1, count = 10) {
         const systemPrompt = `
-Bạn là bậc thầy biên kịch Series ngắn (Short-form Series), am hiểu kỹ thuật Cliffhanger (nút thắt cuối tập) để giữ chân người xem.
-Nghiêm túc tuân thủ: Không bao giờ viết một tập phim có kết thúc quá trọn vẹn và êm đềm.
+Bạn là bậc thầy biên kịch Series ngắn trên TikTok. 
+Nhiệm vụ: Tạo ra danh sách các tập phim hấp dẫn, tập trung vào đối thoại (Dialogue-driven) và tâm lý nhân vật.
 
-QUY TẮC GIỮ CHÂN (RETENTION):
-1. MỖI TẬP PHIM phải kết thúc bằng một "Cliffhanger" (Nút thắt dở dang, một cú sảy chân, một bí mật bị lộ, hoặc một lời đe dọa).
-2. TỔNG THỂ mượt mà: Tập N kết thúc dở dang ở đâu thì tập N+1 phải bắt đầu bằng việc giải quyết nút thắt đó ngay lập tức (Xử lý Hook mạnh).
+QUY TẮC CỐT TRUYỆN:
+1. MỖI TẬP PHIM: Phải có 1 mâu thuẫn hoặc 1 tình huống thú vị được giải quyết chủ yếu qua lời thoại.
+2. CLIFFHANGER: Kết thúc tập phim bằng một câu hỏi hoặc tình huống dở dang để người xem muốn xem tập tiếp theo.
+3. NHẤT QUÁN: Nhân vật phải giữ vững tính cách qua từng tập.
 
 YÊU CẦU JSON:
 {"videos": [{ 
-    "id": "chuỗi duy nhất vd: vid_1",
+    "id": "vid_X",
     "order", "title", "goal", "summary", 
     "hook": "Câu mở đầu gây sốc hoặc tò mò", 
-    "cliffhanger": "Tình tiết dở dang ở cuối tập để ép người xem xem tập sau",
-    "music_vibe": "Loại nhạc thương mại TikTok gợi ý (ví dụ: Cinematic Tension, Fast Phonk, Sad Piano...)"
+    "cliffhanger": "Tình tiết dở dang",
+    "music_vibe": "Cinematic Tension, Slow Emotional, v.v."
 }]}
 `;
         
@@ -123,51 +122,33 @@ Lưu ý: Viết tiêu đề và tóm tắt lôi cuốn, đúng phong cách TikTo
 
     buildVideoScenesPrompt(videoData, channelContext, characterBible = null) {
         const systemPrompt = `
-Bạn là nhà biên kịch và đạo diễn quay dựng video ngắn chuyên nghiệp cho kênh TikTok "Triệu view".
-Nhiệm vụ: Phân rã tóm tắt thành kịch bản 8 -12 cảnh quay chi tiết.
+Bạn là nhà biên kịch và đạo diễn quay dựng video TikTok chuyên nghiệp.
+Nhiệm vụ: Phân rã tóm tắt thành kịch bản 8-12 cảnh quay chi tiết, tập trung vào ĐỐI THOẠI.
 
-YÊU CẦU SỐ 1 - MẠCH TRUYỆN:
-BẮT BUỘC phân rã kịch bản này ra thành 8 ĐẾN 12 CẢNH QUAY (Scenes) liên tục, kịch tính.
+QUY TẮC CỐT LÕI - SỰ ĐỒNG NHẤT TUYỆT ĐỐI:
+1. MỘT BỐI CẢNH DUY NHẤT (SINGLE SETTING): Toàn bộ các cảnh trong cùng một tập phim PHẢI diễn ra tại 1 địa điểm duy nhất (ví dụ: trong phòng khách, tại bàn ăn, hoặc dưới gốc cây). KHÔNG ĐƯỢC thay đổi bối cảnh giữa các cảnh. Hãy mô tả bối cảnh này thật chi tiết bằng TIẾNG ANH trong scene đầu tiên và dùng y hệt mô tả đó cho các cảnh tiếp theo.
+2. NHÂN VẬT ĐỒNG NHẤT: Bạn phải chèn NGUYÊN VĂN đoạn "Appearance DNA" (Mô tả ngoại hình tiếng Anh) của nhân vật vào prompt. KHÔNG ĐƯỢC tự ý tóm tắt.
+3. TẬP TRUNG THOẠI: Video chủ yếu là các nhân vật nói chuyện với nhau. Hãy mô tả biểu cảm khuôn mặt (biểu cảm, cử chỉ môi, ánh mắt) thật chi tiết.
 
-YÊU CẦU SỐ 2 - VIDEO PROMPT (VEO 3.1):
-Thuộc tính "veo3_prompt" PHẢI bắt đầu bằng cụm từ cố định sau để đảm bảo đồng nhất:
+YÊU CẦU VIDEO PROMPT (VEO 3.1):
+Thuộc tính "veo3_prompt" PHẢI bắt đầu bằng:
 "3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character."
+Sau đó là Appearance DNA của các nhân vật có mặt, rồi đến mô tả hành động/biểu cảm, và COPPY Y HỆT mô tả bối cảnh (setting description).
 
-- QUY TẮC BỐI CẢNH (SETTINGS): Trong một tập phim, hãy giới hạn chỉ sử dụng tối đa 2-3 bối cảnh chính (ví dụ: trong nhà, ngoài sân). Hãy tái sử dụng mô tả bối cảnh giống hệt nhau để AI Video không vẽ ra các phòng khác nhau.
-- QUY TẮC CỨNG: Tuyệt đối không sử dụng các từ liên quan đến thực tế như: "realistic", "photorealistic", "8k", "photography", "real person".
-- Nếu có nhân vật: Bạn phải chèn NGUYÊN VĂN đoạn "Appearance DNA" của nhân vật đó vào ngay sau Style Prefix. KHÔNG ĐƯỢC tự ý tóm tắt hay thay đổi ngoại hình của họ giữa các cảnh.
-- Mô tả hành động và bối cảnh: Viết bằng TIẾNG ANH sống động, chi tiết về góc máy và ánh sáng.
-- CUỐI QUY TẮC PROMPT: Bắt đầu bằng chữ "Dialogue:" và chèn phần lời thoại (voice_over) của cảnh đó. 
-- QUAN TRỌNG NHẤT: Phần lời thoại sau chữ "Dialogue:" PHẢI viết bằng TIẾNG VIỆT có dấu.
+CUỐI PROMPT: Bắt đầu bằng chữ "Dialogue:" và chèn phần lời thoại bằng TIẾNG VIỆT có dấu.
 
-YÊU CẦU SỐ 3 - NÚT THẮT Dở DANG (CLIFFHANGER):
-Cảnh cuối cùng (Scene 8 -12) PHẢI thực hiện đúng phần "cliffhanger" đã định hướng. Nó phải kết thúc ở đoạn cao trào nhất, hoặc một câu hỏi bỏ ngỏ, không được kết thúc trọn vẹn. 
-
-YÊU CẦU SỐ 4 - LỜI THOẠI (VOICE OVER):
-Toàn bộ thuộc tính "voice_over" trong JSON PHẢI được viết bằng TIẾNG VIỆT tự nhiên, lôi cuốn, đúng phong cách TikTok.
-
-VÍ DỤ CÂU PROMPT HỢP LỆ (DÀNH CHO VEO3_PROMPT):
-"3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character. A cute orange cat with big expressive eyes, fluffy fur, wearing a small blue collar. The cat is standing on a wooden table looking surprised inside a cozy sunlit kitchen with white tiles. Dialogue: Con mèo này lạ quá, sao nó lại nhìn mình như thế nhỉ?"
-
-YÊU CẦU ĐỊNH DẠNG:
-Trả về duy nhất một đối tượng JSON theo cấu trúc sau:
+YÊU CẦU JSON:
 {
   "scenes": [{ 
     "scene_number", 
     "goal", 
-    "setting", 
-    "characters", 
-    "action", 
-    "emotion", 
-    "camera_angle", 
-    "lighting", 
-    "voice_over", 
-    "veo3_prompt" 
-  }],
-  "copyright_advice": "...",
-  "direction_for_editor": "..."
+    "setting": "Mô tả bối cảnh (Giống hệt nhau cho mọi cảnh)", 
+    "characters": "Tên nhân vật (Tiếng Việt)", 
+    "action": "Hành động/Biểu cảm", 
+    "voice_over": "Lời thoại Tiếng Việt", 
+    "veo3_prompt": "Prompt VEO 3 hoàn chỉnh (Tiếng Anh + Dialogue Tiếng Việt)" 
+  }]
 }
-BẮT BUỘC: Không bao giờ bỏ trống "veo3_prompt". Toàn bộ LỜI THOẠI (Dialogue) trong prompt PHẢI LÀ TIẾNG VIỆT CÓ DẤU. Toàn bộ phong cách PHẢI là Hoạt hình 3D. Giới hạn bối cảnh tối đa 2-3 địa điểm.
 `;
 
         let bibleStr = '';
@@ -189,24 +170,22 @@ Hãy viết kịch bản cảnh quay chi tiết cho tập phim sau:
         return { systemPrompt, userMessage };
     },
 
-buildCharactersPrompt(channelContext, strategyData) {
+    buildCharactersPrompt(channelContext, strategyData) {
         const systemPrompt = `
-Bạn là chuyên gia thiết kế nhân vật cho AI Video (Veo, Kling, Runway). 
-Nhiệm vụ của bạn là dựa trên chiến lược kênh để phóng tác dàn nhân vật chi tiết.
+Bạn là chuyên gia thiết kế nhân vật cho AI Video (3D Animation).
+Nhiệm vụ: Tạo dàn nhân vật đặc sắc, có TÊN TIẾNG VIỆT.
 
-QUY TẮC QUAN TRỌNG NHẤT - APPEARANCE DNA:
-Đối với mỗi nhân vật, phần "appearance_dna" (ngoại hình) phải được viết bằng TIẾNG ANH cực kỳ chi tiết, bao gồm:
-1. Chủng tộc và tuổi cụ thể.
-2. TẠO HÌNH HOẠT HÌNH: Mô tả nhân vật theo phong cách 3D Animation (eyes slightly larger, expressive features, vibrant textures). Tuyệt đối không tả kiểu người thật.
-3. Cấu trúc khuôn mặt (ví dụ: oval face, high cheekbones, deep-set eyes, thin lips).
-4. Đặc điểm tóc và màu sắc.
-5. Trang phục mặc định (luôn mặc bộ đồ này để giữ đồng nhất).
-6. MỘT PHỤ KIỆN DUY NHẤT.
+QUY TẮC APPEARANCE DNA:
+Đối với mỗi nhân vật, phần "appearance_dna" PHẢI viết bằng TIẾNG ANH cực kỳ chi tiết (150-200 từ), bao gồm:
+1. TẠO HÌNH HOẠT HÌNH: 3D Animation style, Pixar-like eyes and expressions.
+2. CHI TIẾT KHUÔN MẶT: Hình dáng mặt, mũi, môi, đặc điểm da.
+3. TÓC & PHỤ KIỆN: Màu sắc, kiểu tóc, phụ kiện đặc trưng.
+4. TRANG PHỤC CỐ ĐỊNH: Mô tả bộ đồ nhân vật luôn mặc để giữ đồng nhất.
 
-Mục tiêu là mô tả sao cho AI Video chỉ cần đọc đoạn này là vẽ ra đúng 1 người duy nhất theo phong cách HOẠT HÌNH 3D.
+Mục tiêu là mô tả sao cho AI chỉ cần đọc đoạn này là vẽ ra đúng 1 người duy nhất, không thay đổi.
 
 CẤU TRÚC JSON:
-{"characters": [{ "id", "name", "role", "age", "personality", "appearance_dna", "note" }]}
+{"characters": [{ "id", "name" (Tiếng Việt), "role", "age", "personality", "appearance_dna", "note" }]}
 `;
 
         const userMessage = `
@@ -268,16 +247,15 @@ Hãy tạo ra 2-3 nhân vật chính đặc sắc nhất cho series này.
     async regenerateSingleScenePrompt(sceneData, videoTitle) {
         const systemPrompt = `Bạn là chuyên gia viết Prompt cho AI Video (VEO 3.1). 
 PHONG CÁCH BẮT BUỘC: "3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character." 
-Tuyệt đối KHÔNG sử dụng phong cách thực tế (Realistic).
 
 QUY TẮC CỨNG:
 1. Luôn BẮT ĐẦU prompt bằng Style Prefix ở trên.
-2. Chèn NGUYÊN VĂN mô tả nhân vật (nội dung trong Appearance DNA) vào ngay sau prefix.
-3. Không tự ý thay đổi các đặc điểm nhận dạng của nhân vật giữa các cảnh.
-4. Bối cảnh (Background): Phải đồng nhất với các cảnh khác trong cùng video. Sử dụng cùng một mô tả nếu bối cảnh giống nhau.
-5. BẮT BUỘC CUỐI PROMPT: Phải có phần lời thoại tiếng Việt định dạng: "Dialogue: [nội dung lời thoại tiếng Việt]".
+2. Chèn NGUYÊN VĂN mô tả nhân vật (Appearance DNA) vào ngay sau prefix.
+3. BỐI CẢNH (Background): Phải đồng nhất 100% với các cảnh khác trong cùng video. Sử dụng cùng một mô tả chi tiết.
+4. TẬP TRUNG THOẠI: Mô tả biểu cảm khuôn mặt và hành động nói chuyện.
+5. BẮT BUỘC CUỐI PROMPT: "Dialogue: [nội dung lời thoại tiếng Việt]".
 
-Trả về kết quả dưới định dạng JSON: {"prompt": "nội dung prompt..."}`;
+Trả về JSON: {"prompt": "nội dung prompt..."}`;
         
         const userMessage = `Video: ${videoTitle}\nCảnh quay: ${sceneData.action}\nBối cảnh: ${sceneData.setting}\nNhân vật: ${sceneData.characters}\nCảm xúc: ${sceneData.emotion}\nLời thoại (Việt): ${sceneData.voice_over || ''}`;
         
