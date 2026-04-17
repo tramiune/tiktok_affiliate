@@ -79,21 +79,23 @@ Hãy tập trung xây dựng Concept và dàn nhân vật (Tên Tiếng Việt) 
     },
 
     buildVideosBatchPrompt(channelData, strategy, characters, previousVideos = [], startOrder = 1, count = 10) {
+        const isSeries = channelData.type === 'series';
+        
         const systemPrompt = `
-Bạn là bậc thầy biên kịch Series ngắn trên TikTok. 
-Nhiệm vụ: Tạo ra danh sách các tập phim hấp dẫn, tập trung vào đối thoại (Dialogue-driven) và tâm lý nhân vật.
+Bạn là bậc thầy biên kịch trên TikTok. 
+Nhiệm vụ: Tạo ra danh sách các ${isSeries ? 'tập phim trong một Series' : 'video độc lập'} hấp dẫn, tập trung vào đối thoại và tâm lý nhân vật.
 
-QUY TẮC CỐT TRUYỆN:
-1. MỞ ĐẦU GÂY SỐC (SHOCKING HOOK): Mỗi tập phim PHẢI bắt đầu bằng một câu thoại hoặc tình huống gây sốc, tranh cãi nảy lửa hoặc một bí mật động trời được tiết lộ ngay giây đầu tiên.
-2. TỔNG THỂ: Một mâu thuẫn hoặc mâu thuẫn gia đình/xã hội được giải quyết chủ yếu qua lời thoại gay gắt.
-3. CLIFFHANGER: Kết thúc tập phim bằng một câu hỏi hoặc tình huống dở dang cao trào.
+QUY TẮC CỐT TRUYỆN (${isSeries ? 'CHẾ ĐỘ SERIES' : 'CHẾ ĐỘ ĐỘC LẬP'}):
+1. MỞ ĐẦU GÂY SỐC (SHOCKING HOOK): Mỗi video PHẢI bắt đầu bằng một câu thoại hoặc tình huống gây sốc ngay giây đầu tiên.
+2. TỔNG THỂ: Một mâu thuẫn được giải quyết chủ yếu qua lời thoại gay gắt.
+${isSeries ? '3. CLIFFHANGER: Kết thúc video bằng một tình huống dở dang cao trào để người xem muốn xem tiếp tập sau.' : '3. KẾT THÚC TRỌN VẸN: Vì đây là video ĐỘC LẬP, mỗi video phải có một kết cục rõ ràng, giải quyết triệt để mâu thuẫn đã đặt ra trong video đó.'}
 
 YÊU CẦU JSON:
 {"videos": [{ 
     "id": "vid_X",
     "order", "title", "goal", "summary", 
     "hook": "Câu thoại/tình huống gây sốc ngay mở đầu", 
-    "cliffhanger": "Tình tiết dở dang cao trào",
+    "${isSeries ? 'cliffhanger' : 'conclusion'}": "${isSeries ? 'Tình tiết dở dang cao trào' : 'Cách mâu thuẫn được giải quyết trọn vẹn'}",
     "music_vibe": "Cinematic Tension, Aggressive Phonk, Sad Piano..."
 }]}
 `;
@@ -121,16 +123,19 @@ Lưu ý: Viết tiêu đề và tóm tắt lôi cuốn, đúng phong cách TikTo
     },
 
     buildVideoScenesPrompt(videoData, channelContext, characterBible = null) {
+        const isSeries = channelContext.type === 'series';
+        
         const systemPrompt = `
 Bạn là nhà biên kịch và đạo diễn quay dựng video TikTok chuyên nghiệp.
 Nhiệm vụ: Phân rã tóm tắt thành kịch bản 12-20 CẢNH QUAY chi tiết, tập trung vào ĐỐI THOẠI.
 
 QUY TẮC CỐT LÕI - SỰ ĐỒNG NHẤT VÀ TÁC ĐỘNG:
-1. MỞ ĐẦU GÂY SỐC (SHOCK SCENE): Cảnh 1 PHẢI là một câu thoại hoặc hành động gây sốc, tranh cãi nảy lửa. Không dạo đầu rườm rà.
-2. 12-20 CẢNH QUAY: Chia nhỏ câu chuyện thành ít nhất 12 cảnh và tối đa 20 cảnh để tăng độ chi tiết.
-3. CAMERA CỐ ĐỊNH (STATIC CAMERA): Hạn chế tối đa việc đổi góc quay xa-gần liên tục. Hãy giữ camera ổn định (Steady shot/Fixed angle) ở một vị trí đẹp để người xem tập trung vào lời thoại và biểu cảm. KHÔNG quay cảnh toàn rồi lại quay cận cảnh khiến clip bị giật lag.
-4. MỘT BỐI CẢNH DUY NHẤT: Toàn bộ 12-20 cảnh PHẢI diễn ra tại 1 địa điểm duy nhất.
-5. LOGIC ĐỒNG NHẤT: Mọi chi tiết (đồ vật trên bàn, phụ kiện nhân vật) PHẢI giữ y hệt từ scene 1 đến scene 20. Không được ẩn hiện vô lý.
+1. MỞ ĐẦU GÂY SỐC: Cảnh 1 PHẢI là một câu thoại hoặc hành động gây sốc, tranh cãi nảy lửa.
+2. 12-20 CẢNH QUAY: Chia nhỏ câu chuyện để tăng độ chi tiết.
+3. CAMERA CỐ ĐỊNH: Giữ camera ổn định (Steady shot/Fixed angle). KHÔNG đổi góc quay xa-gần liên tục.
+4. MỘT BỐI CẢNH DUY NHẤT: Toàn bộ các cảnh PHẢI diễn ra tại 1 địa điểm duy nhất.
+5. LOGIC ĐỒNG NHẤT: Mọi chi tiết đồ vật PHẢI giữ y hệt từ scene 1 đến scene cuối.
+${isSeries ? '6. CLIFFHANGER: Cảnh cuối cùng PHẢI kết thúc ở đoạn cao trào dở dang.' : '6. KẾT THÚC TRỌN VẸN: Cảnh cuối cùng PHẢI giải quyết hoàn toàn mâu thuẫn của câu chuyện này.'}
 
 YÊU CẦU VIDEO PROMPT (VEO 3.1):
 Thuộc tính "veo3_prompt" PHẢI bắt đầu bằng:
@@ -148,7 +153,7 @@ YÊU CẦU JSON:
     "characters": "Tên nhân vật (Tiếng Việt)", 
     "action": "Hành động/Biểu cảm", 
     "voice_over": "Lời thoại Tiếng Việt", 
-    "veo3_prompt": "Prompt VEO 3 hoàn chỉnh (Tiếng Anh + Dialogue Tiếng Việt)" 
+    "veo3_prompt": "Prompt VEO 3 hoàn chỉnh" 
   }]
 }
 `;
