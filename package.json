@@ -1,0 +1,16 @@
+{
+  "name": "tiktok-affiliate-planner",
+  "version": "1.5.0",
+  "description": "AI TikTok Content Planner",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}

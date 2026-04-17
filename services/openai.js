@@ -126,18 +126,19 @@ Lưu ý: Viết tiêu đề và tóm tắt lôi cuốn, đúng phong cách TikTo
         const isSeries = channelContext.type === 'series';
         
         const systemPrompt = `
-Bạn là đạo diễn phim TikTok chuyên về kịch tính và tâm lý (Drama & Tension).
+Bạn là đạo diễn phim TikTok chuyên về kịch tính và tâm lý.
 Nhiệm vụ: Phân rã tóm tắt thành 12-20 CẢNH QUAY cực kỳ căng thẳng.
 
-QUY TẮC CỐT LÕI - HYPER QUALITY:
-1. MỞ ĐẦU GÂY SỐC: Cảnh 1 phải là một "Cú tát" về mặt cảm xúc hoặc lời thoại gây sốc, tranh cãi nảy lửa ngay lập tức.
-2. CĂNG THẲNG TỘI ĐA (MAX TENSION): Lời thoại phải gay gắt, dồn dập, đẩy mâu thuẫn lên đỉnh điểm.
-3. BỐI CẢNH KHÓA CHẶT (LOCKED SETTING): Bạn phải mô tả bối cảnh thật chi tiết bằng TIẾNG ANH ở Scene 1 và COPY Y HỆT 100% cho 19 scene còn lại. Sự thay đổi dù là nhỏ nhất ở bối cảnh cũng không được phép.
-4. CAMERA CỐ ĐỊNH (STEADY CAM): Dùng các góc quay cố định, góc máy đẹp để bắt trọn biểu cảm gương mặt. Tuyệt đối không nhảy góc máy lung tung.
-5. CHI TIẾT LOGIC: Các đồ vật, phụ kiện PHẢI giữ nguyên vị trí xuyên suốt.
+QUY TẮC SIÊU CHI TIẾT (EXPERT MODE):
+1. MỞ ĐẦU GÂY SỐC: Cảnh 1 PHẢI bắt đầu bằng mâu thuẫn đỉnh điểm.
+2. BỐI CẢNH KHÓA CHẶT (LOCKED): Mô tả bối cảnh cực kỳ chi tiết bằng tiếng Anh và dùng Y HỆT 100% cho mọi cảnh.
+3. NHÂN VẬT SIÊU ĐỒNG NHẤT: Chèn TOÀN BỘ đoạn Appearance DNA (700-1000 từ) của nhân vật vào prompt. Nếu quá dài, hãy tập trung vào các đặc điểm nhận diện khuôn mặt và trang phục chính xác nhất.
+4. MÀU SẮC ĐỒNG BỘ: Luôn nhắc lại màu sắc trang phục và chất liệu trong từng cảnh để AI không bị nhầm lẫn.
+5. CAMERA CỐ ĐỊNH: Dùng Steady Cam, góc máy đẹp, không nhảy góc xa-cận vô lý.
+6. CHI TIẾT LOGIC: Các đồ vật k đổi vị trí.
 
 YÊU CẦU VIDEO PROMPT (VEO 3.1):
-"3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character." + [Appearance DNA] + [Hành động & Biểu cảm chi tiết] + [Mô tả bối cảnh Locked].
+"3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character." + [Appearance DNA dài] + [Hành động/Biểu cảm chi tiết] + [Mô tả bối cảnh Locked].
 
 CUỐI PROMPT: "Dialogue: [Lời thoại Tiếng Việt]".
 
@@ -168,22 +169,26 @@ Hãy viết kịch bản cảnh quay chi tiết cho tập phim sau:
 
     buildCharactersPrompt(channelContext, strategyData) {
         const systemPrompt = `
-Bạn là chuyên gia thiết kế nhân vật cho AI Video (3D Animation) đẳng cấp thế giới.
-Nhiệm vụ: Tạo dàn nhân vật TIẾNG VIỆT với sự đồng nhất tuyệt đối.
+Bạn là chuyên gia thiết kế nhân vật hàng đầu thế giới cho AI Video.
+Nhiệm vụ: Tạo dàn nhân vật TIẾNG VIỆT với mô tả ngoại hình (Appearance DNA) ở mức độ "SIÊU CHI TIẾT" (Extreme Details).
 
-QUY TẮC "HYPER-CONSISTENT DNA":
-Đối với mỗi nhân vật, phần "appearance_dna" PHẢI cực kỳ chi tiết (250-300 từ) theo 7 điểm sau:
-1. MẮT: Hình dáng (almond, round), màu sắc (chi tiết đến con ngươi), hàng mi, biểu cảm mắt đặc trưng.
-2. MŨI & MIỆNG: Hình dáng mũi (cao, thẳng, cánh mũi), hình dáng môi (dày, mỏng, cupid's bow).
-3. KHUÔN MẶT: Hình dáng (oval, heart, square jawline), gò má, cằm, làn da (trắng hồng, mật ong, texture mịn).
-4. TÓC: Kiểu tóc cụ thể, màu sắc (highlight, ombre nếu có), độ dài, texture (mượt, xoăn).
-5. TRANG PHỤC CỐ ĐỊNH: Bộ đồ nhân vật LUÔN MẶC (mô tả từ áo, quần, giày, màu sắc, chất liệu vải).
-6. PHỤ KIỆN: Một phụ kiện không bao giờ thay đổi (khuyên tai, vòng cổ, đồng hồ).
-7. TUỔI & BIỂU CẢM GỐC: Tuổi cụ thể và thần thái đặc trưng (nghiêm nghị, hiền hậu, sắc sảo).
+QUY TẮC "ULTRA-DETAILED DNA" (BẮT BUỘC 700-1000 TỪ):
+Đối với mỗi nhân vật, phần "appearance_dna" PHẢI viết bằng TIẾNG ANH dài từ 700 đến 1000 từ, mô tả cực kỳ tỉ mỉ theo các khía cạnh sau:
+1. DIỆN MẠO TỔNG THỂ: Tỷ lệ cơ thể, phong thái, tuổi tác chính xác.
+2. CHI TIẾT KHUÔN MẶT: Hình dáng mặt, trán, xương hàm. Mô tả từng milimet của mắt (mống mắt, đồng tử, độ bóng, hàng mi), mũi (sống mũi, đầu mũi), môi (rãnh môi, độ dày, màu sắc tự nhiên).
+3. LÀN DA & TEXTURE: Chi tiết lỗ chân lông, độ phản chiếu ánh sáng trên da, nốt ruồi hoặc đặc điểm riêng.
+4. TÓC: Từng sợi tóc, độ bóng, hướng tóc, màu sắc chính xác (ví dụ: Midnight Black with subtle Blue highlights), kết cấu (xoăn, mượt).
+5. TRANG PHỤC CỐ ĐỊNH: Mô tả cực kỳ chi tiết về CHẤT LIỆU (lụa, satin, cotton, len), CÁCH DỆT, MÀU SẮC CHÍNH XÁC (Sử dụng tên màu cụ thể hoặc mã màu nếu cần), khuy áo, đường chỉ khâu. Nhân vật PHẢI mặc bộ đồ này trong mọi cảnh quay.
+6. PHỤ KIỆN: Trang sức, đồng hồ, kính... mô tả chi tiết hình dáng và chất liệu kim loại/đá quý.
+7. BIỂU CẢM & THẦN THÁI: Cách nhân vật nheo mắt, cười, hoặc nhíu mày.
+
+Mục tiêu: Mô tả sao cho AI Video Generator không có bất kỳ khoảng trống nào để "tự diễn đạt", đảm bảo 100% sự đồng nhất về màu sắc và hình dạng.
 
 CẤU TRÚC JSON:
 {"characters": [{ "id", "name", "role", "age", "personality", "appearance_dna", "note" }]}
 `;
+        return { systemPrompt, userMessage: `Kênh: ${channelContext.name}\nChiến lược: ${strategyData.conceptName}\nHãy tạo 2-3 nhân vật với DNA dài 700-1000 từ.` };
+    },
 
         const userMessage = `
 Kênh: ${channelContext.name} (${channelContext.topic})

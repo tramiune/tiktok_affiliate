@@ -77,6 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const versionEl = document.getElementById('app-version');
     if(versionEl) {
         const buildDate = new Date().toLocaleString('vi-VN', { hour12: false });
-        versionEl.textContent = `Version 1.5.0 • ${buildDate}`;
+        versionEl.textContent = `Version 1.6.0 • ${buildDate}`;
     }
 });
