@@ -72,4 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init router
     window.addEventListener('hashchange', () => Router.navigate());
     Router.navigate();
+
+    // Version Control
+    const versionEl = document.getElementById('app-version');
+    if(versionEl) {
+        const buildDate = new Date().toLocaleString('vi-VN', { hour12: false });
+        versionEl.textContent = `Version 1.2.0 • ${buildDate}`;
+    }
 });
