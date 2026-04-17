@@ -126,35 +126,24 @@ Lưu ý: Viết tiêu đề và tóm tắt lôi cuốn, đúng phong cách TikTo
         const isSeries = channelContext.type === 'series';
         
         const systemPrompt = `
-Bạn là nhà biên kịch và đạo diễn quay dựng video TikTok chuyên nghiệp.
-Nhiệm vụ: Phân rã tóm tắt thành kịch bản 12-20 CẢNH QUAY chi tiết, tập trung vào ĐỐI THOẠI.
+Bạn là đạo diễn phim TikTok chuyên về kịch tính và tâm lý (Drama & Tension).
+Nhiệm vụ: Phân rã tóm tắt thành 12-20 CẢNH QUAY cực kỳ căng thẳng.
 
-QUY TẮC CỐT LÕI - SỰ ĐỒNG NHẤT VÀ TÁC ĐỘNG:
-1. MỞ ĐẦU GÂY SỐC: Cảnh 1 PHẢI là một câu thoại hoặc hành động gây sốc, tranh cãi nảy lửa.
-2. 12-20 CẢNH QUAY: Chia nhỏ câu chuyện để tăng độ chi tiết.
-3. CAMERA CỐ ĐỊNH: Giữ camera ổn định (Steady shot/Fixed angle). KHÔNG đổi góc quay xa-gần liên tục.
-4. MỘT BỐI CẢNH DUY NHẤT: Toàn bộ các cảnh PHẢI diễn ra tại 1 địa điểm duy nhất.
-5. LOGIC ĐỒNG NHẤT: Mọi chi tiết đồ vật PHẢI giữ y hệt từ scene 1 đến scene cuối.
-${isSeries ? '6. CLIFFHANGER: Cảnh cuối cùng PHẢI kết thúc ở đoạn cao trào dở dang.' : '6. KẾT THÚC TRỌN VẸN: Cảnh cuối cùng PHẢI giải quyết hoàn toàn mâu thuẫn của câu chuyện này.'}
+QUY TẮC CỐT LÕI - HYPER QUALITY:
+1. MỞ ĐẦU GÂY SỐC: Cảnh 1 phải là một "Cú tát" về mặt cảm xúc hoặc lời thoại gây sốc, tranh cãi nảy lửa ngay lập tức.
+2. CĂNG THẲNG TỘI ĐA (MAX TENSION): Lời thoại phải gay gắt, dồn dập, đẩy mâu thuẫn lên đỉnh điểm.
+3. BỐI CẢNH KHÓA CHẶT (LOCKED SETTING): Bạn phải mô tả bối cảnh thật chi tiết bằng TIẾNG ANH ở Scene 1 và COPY Y HỆT 100% cho 19 scene còn lại. Sự thay đổi dù là nhỏ nhất ở bối cảnh cũng không được phép.
+4. CAMERA CỐ ĐỊNH (STEADY CAM): Dùng các góc quay cố định, góc máy đẹp để bắt trọn biểu cảm gương mặt. Tuyệt đối không nhảy góc máy lung tung.
+5. CHI TIẾT LOGIC: Các đồ vật, phụ kiện PHẢI giữ nguyên vị trí xuyên suốt.
 
 YÊU CẦU VIDEO PROMPT (VEO 3.1):
-Thuộc tính "veo3_prompt" PHẢI bắt đầu bằng:
-"3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character."
-Sau đó là Appearance DNA của các nhân vật, rồi đến hành động/biểu cảm cực kỳ chi tiết của từng người (cử động môi, ánh mắt khi nói), và COPY Y HỆT mô tả bối cảnh.
+"3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character." + [Appearance DNA] + [Hành động & Biểu cảm chi tiết] + [Mô tả bối cảnh Locked].
 
 CUỐI PROMPT: "Dialogue: [Lời thoại Tiếng Việt]".
 
 YÊU CẦU JSON:
 {
-  "scenes": [{ 
-    "scene_number", 
-    "goal", 
-    "setting": "Mô tả bối cảnh (Giống hệt nhau cho mọi cảnh)", 
-    "characters": "Tên nhân vật (Tiếng Việt)", 
-    "action": "Hành động/Biểu cảm", 
-    "voice_over": "Lời thoại Tiếng Việt", 
-    "veo3_prompt": "Prompt VEO 3 hoàn chỉnh" 
-  }]
+  "scenes": [{ "scene_number", "goal", "setting", "characters", "action", "voice_over", "veo3_prompt" }]
 }
 `;
 
@@ -179,20 +168,21 @@ Hãy viết kịch bản cảnh quay chi tiết cho tập phim sau:
 
     buildCharactersPrompt(channelContext, strategyData) {
         const systemPrompt = `
-Bạn là chuyên gia thiết kế nhân vật cho AI Video (3D Animation).
-Nhiệm vụ: Tạo dàn nhân vật đặc sắc, có TÊN TIẾNG VIỆT.
+Bạn là chuyên gia thiết kế nhân vật cho AI Video (3D Animation) đẳng cấp thế giới.
+Nhiệm vụ: Tạo dàn nhân vật TIẾNG VIỆT với sự đồng nhất tuyệt đối.
 
-QUY TẮC APPEARANCE DNA:
-Đối với mỗi nhân vật, phần "appearance_dna" PHẢI viết bằng TIẾNG ANH cực kỳ chi tiết (150-200 từ), bao gồm:
-1. TẠO HÌNH HOẠT HÌNH: 3D Animation style, Pixar-like eyes and expressions.
-2. CHI TIẾT KHUÔN MẶT: Hình dáng mặt, mũi, môi, đặc điểm da.
-3. TÓC & PHỤ KIỆN: Màu sắc, kiểu tóc, phụ kiện đặc trưng.
-4. TRANG PHỤC CỐ ĐỊNH: Mô tả bộ đồ nhân vật luôn mặc để giữ đồng nhất.
-
-Mục tiêu là mô tả sao cho AI chỉ cần đọc đoạn này là vẽ ra đúng 1 người duy nhất, không thay đổi.
+QUY TẮC "HYPER-CONSISTENT DNA":
+Đối với mỗi nhân vật, phần "appearance_dna" PHẢI cực kỳ chi tiết (250-300 từ) theo 7 điểm sau:
+1. MẮT: Hình dáng (almond, round), màu sắc (chi tiết đến con ngươi), hàng mi, biểu cảm mắt đặc trưng.
+2. MŨI & MIỆNG: Hình dáng mũi (cao, thẳng, cánh mũi), hình dáng môi (dày, mỏng, cupid's bow).
+3. KHUÔN MẶT: Hình dáng (oval, heart, square jawline), gò má, cằm, làn da (trắng hồng, mật ong, texture mịn).
+4. TÓC: Kiểu tóc cụ thể, màu sắc (highlight, ombre nếu có), độ dài, texture (mượt, xoăn).
+5. TRANG PHỤC CỐ ĐỊNH: Bộ đồ nhân vật LUÔN MẶC (mô tả từ áo, quần, giày, màu sắc, chất liệu vải).
+6. PHỤ KIỆN: Một phụ kiện không bao giờ thay đổi (khuyên tai, vòng cổ, đồng hồ).
+7. TUỔI & BIỂU CẢM GỐC: Tuổi cụ thể và thần thái đặc trưng (nghiêm nghị, hiền hậu, sắc sảo).
 
 CẤU TRÚC JSON:
-{"characters": [{ "id", "name" (Tiếng Việt), "role", "age", "personality", "appearance_dna", "note" }]}
+{"characters": [{ "id", "name", "role", "age", "personality", "appearance_dna", "note" }]}
 `;
 
         const userMessage = `
