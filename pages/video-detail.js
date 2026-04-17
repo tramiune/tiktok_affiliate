@@ -349,7 +349,7 @@ function setupEvents() {
                 icon.className = 'fa-solid fa-spinner fa-spin';
                 
                 // Trực tiếp gọi sinh và chơi
-                const audioUrl = await OpenAIService.generateSpeech(scene.voice_over);
+                const audioUrl = await OpenAIService.generateSpeech(scene.voice_over, scene.voice);
                 const audio = new Audio(audioUrl);
                 audio.play();
                 
@@ -368,7 +368,7 @@ function setupEvents() {
 
     document.getElementById('btn-gen-scenes').onclick = async () => {
         try {
-            UI.injectLoader('form-card', 'AI đang viết kịch bản chi tiết... Vui lòng chờ 20-40s.');
+            UI.injectLoader('view-container', 'Đang chuẩn bị quy trình sinh VEO 3 Hyper-Prompt (Siêu Chi Tiết)...');
             const scenesEmpty = document.getElementById('scenes-empty');
             if(scenesEmpty) scenesEmpty.classList.add('hidden');
             
@@ -377,7 +377,10 @@ function setupEvents() {
                 characterBible = await DBDocs.getCharacterBible(currentChannelId);
             }
             
-            const result = await OpenAIService.generateVideoScenes(currentVideo, currentChannel, characterBible);
+            const result = await OpenAIService.generateVideoScenes(currentVideo, currentChannel, characterBible, (msg) => {
+                const loaderSpan = document.querySelector(`#loader-view-container span`);
+                if (loaderSpan) loaderSpan.textContent = msg;
+            });
             if(result && result.scenes) {
                 // Save both scenes and metadata (advice)
                 const dataToSave = {
@@ -401,7 +404,7 @@ function setupEvents() {
             UI.showError("Lỗi AI: " + e.message);
             renderScenes();
         } finally {
-            UI.removeLoader('form-card');
+            UI.removeLoader('view-container');
         }
     };
     

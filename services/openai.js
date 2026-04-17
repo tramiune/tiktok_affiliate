@@ -64,7 +64,7 @@ YÊU CẦU JSON:
 - "pillars": [3 mảng nội dung chính],
 - "toneOfVoice": (giọng điệu),
 - "visualStyle": "3D Animation, Pixar Style",
-- "characters": [Danh sách 2-3 nhân vật chính với: id, name (Tên Tiếng Việt), role, age, appearance_dna (Mô tả ngoại hình CHI TIẾT bằng TIẾNG ANH để AI vẽ chuẩn), personality, note]
+- "characters": [Danh sách 2-3 nhân vật chính với: id, name (Tên Tiếng Việt), role, age, appearance_dna (Mô tả ngoại hình SIÊU CHI TIẾT bằng TIẾNG ANH bao gồm: Màu da/Skin, Ánh mắt/Eyes, Tóc tai/Hair, Khuôn mặt/Face, Chiều cao/Height, Trang phục/Outfit và Màu sắc trang phục/Outfit Color), personality, voice, note]
 `;
         const userMessage = `
 Phân tích và lên chiến lược cho kênh TikTok:
@@ -126,32 +126,31 @@ Lưu ý: Viết tiêu đề và tóm tắt lôi cuốn, đúng phong cách TikTo
         const isSeries = channelContext.type === 'series';
         
         const systemPrompt = `
-Bạn là đạo diễn phim TikTok chuyên về kịch tính và tâm lý.
-Nhiệm vụ: Phân rã tóm tắt thành 12-20 CẢNH QUAY cực kỳ căng thẳng.
+Bạn là đạo diễn phim TikTok chuyên về kịch tính và tâm lý. 
+Nhiệm vụ: Phân rã tóm tắt thành 12-20 CẢNH QUAY chi tiết.
 
-QUY TẮC SIÊU CHI TIẾT (EXPERT MODE):
-1. MỞ ĐẦU GÂY SỐC: Cảnh 1 PHẢI bắt đầu bằng mâu thuẫn đỉnh điểm.
-2. BỐI CẢNH KHÓA CHẶT (LOCKED): Mô tả bối cảnh cực kỳ chi tiết bằng tiếng Anh và dùng Y HỆT 100% cho mọi cảnh.
-3. NHÂN VẬT SIÊU ĐỒNG NHẤT: Chèn TOÀN BỘ đoạn Appearance DNA (700-1000 từ) của nhân vật vào prompt. Nếu quá dài, hãy tập trung vào các đặc điểm nhận diện khuôn mặt và trang phục chính xác nhất.
-4. MÀU SẮC ĐỒNG BỘ: Luôn nhắc lại màu sắc trang phục và chất liệu trong từng cảnh để AI không bị nhầm lẫn.
-5. CAMERA CỐ ĐỊNH: Dùng Steady Cam, góc máy đẹp, không nhảy góc xa-cận vô lý.
-6. CHI TIẾT LOGIC: Các đồ vật k đổi vị trí.
-
-YÊU CẦU VIDEO PROMPT (VEO 3.1):
-"3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character." + [Appearance DNA dài] + [Hành động/Biểu cảm chi tiết] + [Mô tả bối cảnh Locked].
-
-CUỐI PROMPT: "Dialogue: [Lời thoại Tiếng Việt]".
+QUY TẮC "ULTRA STABILITY & CONSISTENCY":
+1. BỐI CẢNH TỐI GIẢN (MINIMALIST SETTING): Mô tả 01 bối cảnh ĐƠN GIẢN, GỌN GÀNG bằng tiếng Anh (Locked Setting). Bối cảnh này sẽ dùng chung cho TẤT CẢ các cảnh.
+2. NHÂN VẬT: Chỉ định rõ ai xuất hiện trong từng cảnh.
+3. GIỌNG NÓI (VOICE): Gán đúng giọng nói (Alloy, Echo, v.v.) đã quy định cho nhân vật đang nói trong cảnh này.
 
 YÊU CẦU JSON:
 {
-  "scenes": [{ "scene_number", "goal", "setting", "characters", "action", "voice_over", "veo3_prompt" }]
+  "locked_setting": "Mô tả bối cảnh chung (Locked Setting) bằng tiếng Anh",
+  "scenes": [{ 
+    "scene_number", "goal", "setting", "characters", "action", "voice_over", 
+    "voice": "Tên giọng nói của nhân vật (PHẢI TRÙNG VỚI GIỌNG TRONG CHARACTER BIBLE)",
+    "emotion": "Cảm xúc nhân vật"
+  }],
+  "copyright_advice": "Lời khuyên về bản quyền",
+  "direction_for_editor": "Hướng dẫn dành cho dựng phim"
 }
 `;
 
         let bibleStr = '';
         if (characterBible && characterBible.length > 0) {
-            bibleStr = 'CHIẾN LƯỢC NHÂN VẬT SERIES (CHỈ CHỌN NHÂN VẬT CẦN THIẾT CHO TẬP NÀY):\n';
-            bibleStr += characterBible.map(c => `- Tên: ${c.name}\n  Ngoại hình: ${c.appearance_dna || c.look || 'Mô tả chung'}`).join('\n\n');
+            bibleStr = 'DANH SÁCH NHÂN VẬT & GIỌNG NÓI (VOICE LIST):\n';
+            bibleStr += characterBible.map(c => `- Tên: ${c.name}\n  Giọng nói: ${c.voice}\n  Ngoại hình: ${c.appearance_dna || c.look || 'Mô tả chung'}`).join('\n\n');
         }
 
         const userMessage = `
@@ -170,32 +169,28 @@ Hãy viết kịch bản cảnh quay chi tiết cho tập phim sau:
     buildCharactersPrompt(channelContext, strategyData) {
         const systemPrompt = `
 Bạn là chuyên gia thiết kế nhân vật hàng đầu thế giới cho AI Video.
-Nhiệm vụ: Tạo dàn nhân vật TIẾNG VIỆT với mô tả ngoại hình (Appearance DNA) ở mức độ "SIÊU CHI TIẾT" (Extreme Details).
+Nhiệm vụ: Tạo dàn nhân vật TIẾNG VIỆT với mô tả ngoại hình SIÊU CHI TIẾT (DNA) (700-1000 từ mô tả tiếng Anh).
 
-QUY TẮC "ULTRA-DETAILED DNA" (BẮT BUỘC 700-1000 TỪ):
-Đối với mỗi nhân vật, phần "appearance_dna" PHẢI viết bằng TIẾNG ANH dài từ 700 đến 1000 từ, mô tả cực kỳ tỉ mỉ theo các khía cạnh sau:
-1. DIỆN MẠO TỔNG THỂ: Tỷ lệ cơ thể, phong thái, tuổi tác chính xác.
-2. CHI TIẾT KHUÔN MẶT: Hình dáng mặt, trán, xương hàm. Mô tả từng milimet của mắt (mống mắt, đồng tử, độ bóng, hàng mi), mũi (sống mũi, đầu mũi), môi (rãnh môi, độ dày, màu sắc tự nhiên).
-3. LÀN DA & TEXTURE: Chi tiết lỗ chân lông, độ phản chiếu ánh sáng trên da, nốt ruồi hoặc đặc điểm riêng.
-4. TÓC: Từng sợi tóc, độ bóng, hướng tóc, màu sắc chính xác (ví dụ: Midnight Black with subtle Blue highlights), kết cấu (xoăn, mượt).
-5. TRANG PHỤC CỐ ĐỊNH: Mô tả cực kỳ chi tiết về CHẤT LIỆU (lụa, satin, cotton, len), CÁCH DỆT, MÀU SẮC CHÍNH XÁC (Sử dụng tên màu cụ thể hoặc mã màu nếu cần), khuy áo, đường chỉ khâu. Nhân vật PHẢI mặc bộ đồ này trong mọi cảnh quay.
-6. PHỤ KIỆN: Trang sức, đồng hồ, kính... mô tả chi tiết hình dáng và chất liệu kim loại/đá quý.
-7. BIỂU CẢM & THẦN THÁI: Cách nhân vật nheo mắt, cười, hoặc nhíu mày.
-
-Mục tiêu: Mô tả sao cho AI Video Generator không có bất kỳ khoảng trống nào để "tự diễn đạt", đảm bảo 100% sự đồng nhất về màu sắc và hình dạng.
+QUY TẮC BẮT BUỘC:
+1. HYPER-DNA (700-1000 TỪ TIẾNG ANH): Mô tả cực kỳ tỉ mỉ từng milimet để AI không bao giờ vẽ sai:
+   - Skin Color: Màu da cụ thể (ví dụ: Pale Ivory, Sun-kissed Olive, Deep Ebony).
+   - Eyes: Màu mắt, ánh mắt, hình dáng mí mắt.
+   - Hair: Kiểu tóc, độ dài, màu sắc, độ bóng, kết cấu tóc.
+   - Face: Hình dáng khuôn mặt, các đặc điểm nổi bật (nốt ruồi, tàn nhang, cằm...).
+   - Height/Build: Chiều cao và vóc dáng.
+   - Outfit: Trang phục cụ thể (chất liệu, kiểu dáng, các lớp áo).
+   - Outfit Color: Màu sắc TRANG PHỤC PHẢI CỐ ĐỊNH và DUY NHẤT.
+2. MÀU SẮC NHẤT QUÁN: Quy định rõ MÀU SẮC trang phục và giữ nó không đổi.
+3. GIỌNG NÓI (VOICE): Chọn 1 giọng OpenAI phù hợp cho mỗi nhân vật từ danh sách: [alloy, echo, fable, onyx, nova, shimmer].
+- Nữ trẻ: nova, shimmer
+- Nam trẻ/trung niên: alloy, echo
+- Giọng trầm/phản diện: onyx
+- Giọng kể chuyện/ấm áp: fable
 
 CẤU TRÚC JSON:
-{"characters": [{ "id", "name", "role", "age", "personality", "appearance_dna", "note" }]}
+{"characters": [{ "id", "name", "role", "age", "personality", "appearance_dna", "voice", "note" }]}
 `;
-        return { systemPrompt, userMessage: `Kênh: ${channelContext.name}\nChiến lược: ${strategyData.conceptName}\nHãy tạo 2-3 nhân vật với DNA dài 700-1000 từ.` };
-    },
-
-        const userMessage = `
-Kênh: ${channelContext.name} (${channelContext.topic})
-Định hướng nội dung: ${strategyData.concept}
-Hãy tạo ra 2-3 nhân vật chính đặc sắc nhất cho series này.
-`;
-        return { systemPrompt, userMessage };
+        return { systemPrompt, userMessage: `Kênh: ${channelContext.name}\nChiến lược: ${strategyData.conceptName}\nHãy tạo 2-3 nhân vật với DNA 700-1000 từ và gán voice riêng biệt.` };
     },
 
     // --- PROMPTS CHÍNH ---
@@ -217,30 +212,83 @@ Hãy tạo ra 2-3 nhân vật chính đặc sắc nhất cho series này.
     },
 
     /**
-     * 3. Tạo nội dung chi tiết theo từng cảnh quay (Scenes)
+     * 3. Tạo nội dung chi tiết theo từng cảnh quay (Scenes) với quy trình 2 bước
      */
-    async generateVideoScenes(videoData, channelContext, characterBible = null) {
-        const p = this.buildVideoScenesPrompt(videoData, channelContext, characterBible);
-        const result = await this.callAPI(p.systemPrompt, p.userMessage);
+    async generateVideoScenes(videoData, channelContext, characterBible = null, onProgress = null) {
+        if (onProgress) onProgress("Đang sinh khung kịch bản và bối cảnh chung...");
         
-        // Normalization: Đảm bảo các field quan trọng luôn tồn tại
-        if (result && result.scenes) {
-            result.scenes = result.scenes.map(s => {
-                let p = s.veo3_prompt || "";
-                if (!p) {
-                    // Tìm bất kỳ key nào chứa chữ "prompt" (không phân biệt hoa thường)
-                    const keys = Object.keys(s);
-                    const promptKey = keys.find(k => k.toLowerCase().includes('prompt'));
-                    if (promptKey) p = s[promptKey];
-                }
-                return {
-                    ...s,
-                    veo3_prompt: p,
-                    characters: String(s.characters || "").replace(/undefined/g, "")
-                };
+        const p = this.buildVideoScenesPrompt(videoData, channelContext, characterBible);
+        const structure = await this.callAPI(p.systemPrompt, p.userMessage);
+        
+        if (!structure || !structure.scenes) {
+            throw new Error("Không thể sinh khung kịch bản.");
+        }
+
+        const lockedSetting = structure.locked_setting || "A simple cinematic room background.";
+        const totalScenes = structure.scenes.length;
+        
+        // Bước 2: Sinh Hyper Detailed Prompt cho từng cảnh
+        const enhancedScenes = [];
+        for (let i = 0; i < totalScenes; i++) {
+            const scene = structure.scenes[i];
+            if (onProgress) onProgress(`Đang sinh Prompt siêu chi tiết cho cảnh ${i + 1}/${totalScenes}...`);
+            
+            const veo3Prompt = await this.generateHyperDetailedPrompt(scene, characterBible, lockedSetting, videoData.title);
+            
+            enhancedScenes.push({
+                ...scene,
+                veo3_prompt: veo3Prompt,
+                setting: lockedSetting, // Đảm bảo dùng chung 1 bối cảnh
+                characters: String(scene.characters || "").replace(/undefined/g, "").trim()
             });
         }
-        return result;
+
+        return {
+            scenes: enhancedScenes,
+            copyright_advice: structure.copyright_advice || '',
+            direction_for_editor: structure.direction_for_editor || ''
+        };
+    },
+
+    /**
+     * Helper: Sinh Prompt VEO 3 "Hyper-Detailed" cho 1 cảnh quay
+     */
+    async generateHyperDetailedPrompt(scene, characterBible, lockedSetting, videoTitle) {
+        const systemPrompt = `Bạn là chuyên gia viết Prompt cho AI Video (VEO 3.1) đỉnh cao thế giới.
+Nhiệm vụ: Tạo ra một Prompt TIẾNG ANH cực kỳ dài, chi tiết và sống động (Hyper-Detailed).
+
+PHONG CÁCH BẮT BUỘC: "3D Animation, Pixar/Disney style, vibrant colors, cinematic lighting, stylized character, 8k resolution, highly detailed textures."
+
+QUY TẮC SIÊU CẤP:
+1. LUÔN BẮT ĐẦU bằng Style Prefix ở trên.
+2. CHÈN NGUYÊN VĂN Character DNA (nếu có) vào prompt. Phải nhắc lại màu sắc trang phục.
+3. BỐI CẢNH (Locked Setting): Phải sử dụng đúng 100% bối cảnh được cung cấp.
+4. KHÔNG ZOOM: Bắt buộc thêm "Static camera, no zoom, wide shot or medium shot (depending on action), absolutely no camera movement."
+5. CHI TIẾT HÀNH ĐỘNG: Mô tả cực kỳ tỉ mỉ cử động môi khi nói, ánh mắt chuyển động, biểu cảm cơ mặt kịch tính.
+6. ĐỘ DÀI: Viết càng dài và chi tiết càng tốt để AI hiểu sâu sắc từng khung hình.
+
+Trả về JSON: {"prompt": "nội dung prompt tiếng Anh siêu dài..."}`;
+
+        let bibleStr = "";
+        if (characterBible && characterBible.length > 0) {
+            bibleStr = characterBible.map(c => `- ${c.name}: ${c.appearance_dna}`).join('\n');
+        }
+
+        const userMessage = `
+Video: ${videoTitle}
+Locked Setting: ${lockedSetting}
+
+Cảnh quay cần sinh Prompt:
+- Hành động: ${scene.action}
+- Nhân vật xuất hiện: ${scene.characters}
+- Lời thoại: ${scene.voice_over}
+- Cảm xúc: ${scene.emotion}
+
+Dàn DNA nhân vật để chèn vào prompt:
+${bibleStr}
+`;
+        const res = await this.callAPI(systemPrompt, userMessage);
+        return res.prompt || "";
     },
 
     /**
@@ -262,7 +310,13 @@ Trả về JSON: {"prompt": "nội dung prompt..."}`;
         const userMessage = `Video: ${videoTitle}\nCảnh quay: ${sceneData.action}\nBối cảnh: ${sceneData.setting}\nNhân vật: ${sceneData.characters}\nCảm xúc: ${sceneData.emotion}\nLời thoại (Việt): ${sceneData.voice_over || ''}`;
         
         const result = await this.callAPI(systemPrompt, userMessage);
-        return result.prompt || "";
+        
+        let p = result.prompt || "";
+        if (typeof p === 'object' && p !== null) {
+            p = p.text || p.content || p.prompt || JSON.stringify(p);
+        }
+        
+        return String(p || "").trim();
     },
 
     /**
@@ -275,11 +329,13 @@ Trả về JSON: {"prompt": "nội dung prompt..."}`;
 
     /**
      * 5. Sinh giọng nói AI (Text-To-Speech)
-     * Trả về Blob URL để chơi ngay lập tức
+     * @param {string} text 
+     * @param {string} charVoice - Giọng nói cụ thể của nhân vật (tùy chọn)
      */
-    async generateSpeech(text) {
+    async generateSpeech(text, charVoice = null) {
         const apiKey = Store.getOpenAIKey();
-        const voice = Store.getTTSType();
+        const globalVoice = Store.getTTSType();
+        const finalVoice = charVoice || globalVoice;
         
         if (!apiKey) throw new Error("Chưa cấu hình API Key");
 
@@ -291,7 +347,7 @@ Trả về JSON: {"prompt": "nội dung prompt..."}`;
             },
             body: JSON.stringify({
                 model: "tts-1",
-                voice: voice,
+                voice: finalVoice,
                 input: text
             })
         });

@@ -218,7 +218,7 @@ function setupEvents() {
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang sinh giọng nói...';
 
-            const audioUrl = await OpenAIService.generateSpeech(text);
+            const audioUrl = await OpenAIService.generateSpeech(text, scene.voice);
             
             const audioContainer = document.getElementById('audio-player-container');
             const audioElement = document.getElementById('sc-audio-element');

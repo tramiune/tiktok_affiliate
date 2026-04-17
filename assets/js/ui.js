@@ -224,7 +224,9 @@ export const UI = {
    */
   async copyToClipboard(text, successMsg = "Đã sao chép vào bộ nhớ tạm!") {
     try {
-      await navigator.clipboard.writeText(text);
+      // Safety check for objects
+      const copyText = typeof text === 'object' ? JSON.stringify(text, null, 2) : String(text || "");
+      await navigator.clipboard.writeText(copyText);
       this.showSuccess(successMsg);
       return true;
     } catch (err) {
