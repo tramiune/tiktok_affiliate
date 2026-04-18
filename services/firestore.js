@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where, orderBy, deleteDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where, orderBy, deleteDoc, serverTimestamp, setDoc, onSnapshot } from 'firebase/firestore';
 import { FirebaseService } from './firebase.js';
 import { Store } from './store.js';
 
@@ -163,5 +163,94 @@ export const DBDocs = {
         }
         const snap = await getDoc(doc(FirebaseService.getDb(), "video_scenes", docId));
         return snap.exists() ? snap.data().scenes : null;
+    },
+
+    // -- QUẢN LÝ MẸ CHỒNG NÀNG DÂU SCRIPTS --
+    getFamilyScripts: async function() {
+        const user = getUser();
+        if(FirebaseService.isMockUser()) {
+            return getStorage('family_scripts')
+                    .filter(s => s.ownerId === user.uid)
+                    .sort((a,b) => b.createdAt - a.createdAt);
+        }
+        
+        const q = query(
+            collection(FirebaseService.getDb(), "family_scripts"), 
+            where("ownerId", "==", user.uid)
+        );
+        const snap = await getDocs(q);
+        return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.createdAt - a.createdAt);
+    },
+
+    subscribeFamilyScripts: function(callback) {
+        const user = Store.getCurrentUser();
+        if (!user) return () => {};
+        
+        if (FirebaseService.isMockUser()) {
+            // Simple mock subscription using an interval for local development
+            const interval = setInterval(() => {
+                const scripts = getStorage('family_scripts')
+                    .filter(s => s.ownerId === user.uid)
+                    .sort((a,b) => b.createdAt - a.createdAt);
+                callback(scripts);
+            }, 1000);
+            return () => clearInterval(interval);
+        }
+
+        const q = query(
+            collection(FirebaseService.getDb(), "family_scripts"), 
+            where("ownerId", "==", user.uid)
+        );
+        
+        return onSnapshot(q, (snap) => {
+            const scripts = snap.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a,b) => b.createdAt - a.createdAt);
+            callback(scripts);
+        }, (err) => {
+            console.error("Firestore Subscribe Error:", err);
+        });
+    },
+
+    saveFamilyScript: async function(scriptData) {
+        const user = getUser();
+        const payload = {
+            ...scriptData,
+            ownerId: user.uid,
+            createdAt: Date.now()
+        };
+
+        if(FirebaseService.isMockUser()) {
+            const list = getStorage('family_scripts');
+            const id = scriptData.id || generateId();
+            const idx = list.findIndex(s => s.id === id);
+            
+            if (idx > -1) {
+                list[idx] = { ...list[idx], ...payload, id };
+            } else {
+                list.push({ id, ...payload });
+            }
+            
+            setStorage('family_scripts', list);
+            return id;
+        }
+
+        if (scriptData.id) {
+            await setDoc(doc(FirebaseService.getDb(), "family_scripts", scriptData.id), payload);
+            return scriptData.id;
+        } else {
+            const ref = await addDoc(collection(FirebaseService.getDb(), "family_scripts"), payload);
+            return ref.id;
+        }
+    },
+
+    deleteFamilyScript: async function(id) {
+        if(FirebaseService.isMockUser()) {
+            const list = getStorage('family_scripts').filter(s => s.id !== id);
+            setStorage('family_scripts', list);
+            return true;
+        }
+        await deleteDoc(doc(FirebaseService.getDb(), "family_scripts", id));
+        return true;
     }
 };

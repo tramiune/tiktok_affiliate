@@ -12,7 +12,8 @@ const routes = {
   '#/strategy': { modulePath: '../../pages/strategy.js', authRequired: true },
   '#/character-bible': { modulePath: '../../pages/character-bible.js', authRequired: true },
   '#/video-detail': { modulePath: '../../pages/video-detail.js', authRequired: true },
-  '#/scene-detail': { modulePath: '../../pages/scene-detail.js', authRequired: true }
+  '#/scene-detail': { modulePath: '../../pages/scene-detail.js', authRequired: true },
+  '#/family-conflict': { modulePath: '../../pages/family-conflict.js', authRequired: true }
 };
 
 export const Router = {
@@ -39,6 +40,8 @@ export const Router = {
             params.channelId = parts[2];
             params.videoId = parts[3];
             params.sceneId = parts[4];
+        } else if (basePath === '#/family-conflict') {
+            params.scriptId = parts[2];
         }
     }
 

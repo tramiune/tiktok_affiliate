@@ -127,12 +127,14 @@ Lưu ý: Viết tiêu đề và tóm tắt lôi cuốn, đúng phong cách TikTo
         
         const systemPrompt = `
 Bạn là đạo diễn phim TikTok chuyên về kịch tính và tâm lý. 
-Nhiệm vụ: Phân rã tóm tắt thành 12-20 CẢNH QUAY chi tiết.
+Nhiệm vụ: Phân rã tóm tắt thành 4-6 CẢNH QUAY chi tiết.
 
 QUY TẮC "ULTRA STABILITY & CONSISTENCY":
 1. BỐI CẢNH TỐI GIẢN (MINIMALIST SETTING): Mô tả 01 bối cảnh ĐƠN GIẢN, GỌN GÀNG bằng tiếng Anh (Locked Setting). Bối cảnh này sẽ dùng chung cho TẤT CẢ các cảnh.
 2. NHÂN VẬT: Chỉ định rõ ai xuất hiện trong từng cảnh.
 3. GIỌNG NÓI (VOICE): Gán đúng giọng nói (Alloy, Echo, v.v.) đã quy định cho nhân vật đang nói trong cảnh này.
+4. QUY TẮC ĐỐI THOẠI: Mỗi cảnh PHẢI có lời thoại (voice_over). Các nhân vật phải nói chuyện liên tục từ đầu đến cuối video.
+5. GLOBAL VISUAL LOCK (TRANG PHỤC): Nhân vật PHẢI mặc đúng bộ trang phục đã được mô tả trong Character Bible (Appearance DNA), tuyệt đối không được thay đổi, biến tấu hoặc thêm phụ kiện qua các cảnh. AI không được viết các hành động như "thay áo", "cởi khoác", "đeo thêm kính" nếu DNA gốc không có.
 
 YÊU CẦU JSON:
 {
@@ -261,10 +263,11 @@ PHONG CÁCH BẮT BUỘC: "3D Animation, Pixar/Disney style, vibrant colors, cin
 
 QUY TẮC SIÊU CẤP:
 1. LUÔN BẮT ĐẦU bằng Style Prefix ở trên.
-2. CHÈN NGUYÊN VĂN Character DNA (nếu có) vào prompt. Phải nhắc lại màu sắc trang phục.
-3. BỐI CẢNH (Locked Setting): Phải sử dụng đúng 100% bối cảnh được cung cấp.
-4. KHÔNG ZOOM: Bắt buộc thêm "Static camera, no zoom, wide shot or medium shot (depending on action), absolutely no camera movement."
-5. CHI TIẾT HÀNH ĐỘNG: Mô tả cực kỳ tỉ mỉ cử động môi khi nói, ánh mắt chuyển động, biểu cảm cơ mặt kịch tính.
+2. [CRITICAL: VISUAL CONSISTENCY] CHÈN NGUYÊN VĂN Character DNA (nếu có) vào prompt. Phải nhắc lại màu sắc trang phục. NHÂN VẬT PHẢI MẶC ĐÚNG QUẦN ÁO TRONG DNA, KHÔNG THAY ĐỔI DÙ CHỈ MỘT CHI TIẾT NHỎ. 
+3. EXPLICIT OUTFIT REMINDER: Trong nội dung prompt, hãy mô tả lại bộ quần áo của nhân vật (ví dụ: "wearing the exact same [color] [outfit] as specified in DNA") để AI Video generator không bị sai lệch.
+4. BỐI CẢNH (Locked Setting): Phải sử dụng đúng 100% bối cảnh được cung cấp.
+5. KHÔNG ZOOM: Bắt buộc thêm "Static camera, no zoom, wide shot or medium shot (depending on action), absolutely no camera movement."
+6. CHI TIẾT ĐỐI THOẠI: Mô tả cực kỳ tỉ mỉ cử động môi khi nói, ánh mắt chuyển động, biểu cảm cơ mặt kịch tính tương ứng với lời thoại. Nhân vật phải nói chuyện sống động từ đầu đến cuối cảnh.
 6. ĐỘ DÀI: Viết càng dài và chi tiết càng tốt để AI hiểu sâu sắc từng khung hình.
 
 Trả về JSON: {"prompt": "nội dung prompt tiếng Anh siêu dài..."}`;
@@ -300,9 +303,10 @@ PHONG CÁCH BẮT BUỘC: "3D Animation, Pixar/Disney style, vibrant colors, cin
 
 QUY TẮC CỨNG:
 1. Luôn BẮT ĐẦU prompt bằng Style Prefix ở trên.
-2. Chèn NGUYÊN VĂN mô tả nhân vật (Appearance DNA) vào ngay sau prefix.
-3. BỐI CẢNH (Background): Phải đồng nhất 100% với các cảnh khác trong cùng video. Sử dụng cùng một mô tả chi tiết.
-4. TẬP TRUNG THOẠI: Mô tả biểu cảm khuôn mặt và hành động nói chuyện.
+2. [VISUAL LOCK] Chèn NGUYÊN VĂN mô tả nhân vật (Appearance DNA) vào ngay sau prefix. Nhân vật phải mặc đồ giống hệt DNA mô tả, không sai lệch màu sắc.
+3. OUTFIT CONSISTENCY: Nhắc lại chi tiết trang phục trong prompt để khóa hình ảnh.
+4. BỐI CẢNH (Background): Phải đồng nhất 100% với các cảnh khác trong cùng video. Sử dụng cùng một mô tả chi tiết.
+5. TẬP TRUNG THOẠI: Mô tả biểu cảm khuôn mặt sống động và hành động nói chuyện liên tục.
 5. BẮT BUỘC CUỐI PROMPT: "Dialogue: [nội dung lời thoại tiếng Việt]".
 
 Trả về JSON: {"prompt": "nội dung prompt..."}`;
